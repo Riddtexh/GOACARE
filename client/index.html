@@ -1,0 +1,820 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GoaCare - Integrated Healthcare & Emergency Portal</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script src="js/tailwind-config.js"></script>
+    <link rel="stylesheet" href="css/base.css">
+    <link rel="stylesheet" href="css/features.css">
+    <link rel="stylesheet" href="css/auth-gate.css">
+    <script src="js/session-gate.js"></script>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col antialiased">
+
+    <!-- Authentication / Login / Sign-In Modal -->
+    <div id="authModal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 transition-all duration-300">
+        <div class="bg-white rounded-2xl max-w-md w-full p-6 sm:p-8 shadow-2xl border border-slate-100 space-y-6">
+            <div class="text-center space-y-2">
+                <div class="w-14 h-14 mx-auto rounded-2xl bg-gradient-to-tr from-teal-700 via-teal-600 to-emerald-500 flex items-center justify-center text-white text-2xl font-bold shadow-md">
+                    <i class="fa-solid fa-heart-pulse"></i>
+                </div>
+                <h2 class="text-2xl font-extrabold text-slate-900" id="authModalTitle">Welcome to GoaCare</h2>
+                <p class="text-xs text-slate-500" id="authModalSub">Access Goa's integrated health services, bed tracking, and DDSSY benefits.</p>
+            </div>
+
+            <!-- Login / Signup Form Tabs -->
+            <div class="flex border-b border-slate-200">
+                <button onclick="switchAuthMode('login')" id="authTabLogin" class="flex-1 py-2 text-xs font-bold border-b-2 border-teal-600 text-teal-700">Sign In</button>
+                <button onclick="switchAuthMode('signup')" id="authTabSignup" class="flex-1 py-2 text-xs font-bold border-b-2 border-transparent text-slate-400 hover:text-slate-600">Create Account</button>
+            </div>
+
+            <!-- Auth Form -->
+            <form id="authForm" onsubmit="handleAuthSubmit(event)" class="space-y-4">
+                <div id="signupNameField" class="hidden">
+                    <label class="block text-[11px] font-bold text-slate-700 mb-1">Full Name</label>
+                    <input type="text" id="authName" placeholder="e.g. Eshaan Fernandes" class="w-full p-2.5 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-teal-500 focus:outline-none">
+                </div>
+
+                <div>
+                    <label class="block text-[11px] font-bold text-slate-700 mb-1">Phone / Health ID</label>
+                    <input type="text" id="authPhone" required autocomplete="username" placeholder="Enter mobile number or DDSSY ID" class="w-full p-2.5 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-teal-500 focus:outline-none">
+                </div>
+
+                <div>
+                    <label class="block text-[11px] font-bold text-slate-700 mb-1">Password / PIN</label>
+                    <input type="password" id="authPassword" required autocomplete="current-password" placeholder="••••••••" class="w-full p-2.5 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-teal-500 focus:outline-none">
+                </div>
+
+                <p id="authError" role="alert" class="hidden text-[11px] font-semibold text-rose-700 bg-rose-50 border border-rose-200 rounded-lg px-3 py-2"></p>
+
+                <button type="submit" id="authSubmitBtn" class="w-full py-3 bg-teal-600 hover:bg-teal-700 text-white font-bold text-xs rounded-xl shadow-md transition">
+                    Sign In to Portal
+                </button>
+            </form>
+
+            <div class="text-center border-t border-slate-100 pt-4">
+                <button onclick="continueAsGuest()" class="text-xs text-slate-500 hover:text-teal-700 font-semibold underline underline-offset-2">
+                    Continue as Guest User
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Application Header -->
+    <header class="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200 shadow-sm no-print">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <!-- Brand Logo & Title -->
+                <div class="flex items-center space-x-3 cursor-pointer" onclick="switchTab('facilities')">
+                    <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-teal-700 via-teal-600 to-emerald-500 flex items-center justify-center text-white text-xl font-bold shadow-md">
+                        <i class="fa-solid fa-heart-pulse"></i>
+                    </div>
+                    <div>
+                        <span class="text-xl font-extrabold bg-clip-text text-transparent bg-gradient-to-r from-teal-800 to-emerald-600">GoaCare</span>
+                        <span class="text-xs block text-slate-500 font-medium -mt-1" id="lbl-subtitle">Goa Health & Emergency Portal</span>
+                    </div>
+                </div>
+
+                <!-- Desktop Navigation Links -->
+                <nav class="hidden lg:flex space-x-1 border-l border-r border-slate-200 px-3 my-2">
+                    <button onclick="switchTab('appointments')" id="tab-appointments" title="Appointments" class="nav-btn nav-extra relative px-3 py-2 text-xs font-semibold text-slate-600 hover:text-teal-700 transition-all rounded-lg flex items-center gap-1.5">
+                        <i class="fa-solid fa-calendar-check text-sm"></i> <span id="nav-appt" class="nav-extra-label">Appointments</span>
+                        <span id="apptNavDot" class="hidden absolute top-1 right-1 w-2 h-2 rounded-full bg-rose-500 animate-pulse"></span>
+                    </button>
+                    <button onclick="switchTab('doctors')" id="tab-doctors" class="nav-btn px-3 py-2 text-xs font-semibold text-slate-600 hover:text-teal-700 transition-all rounded-lg flex items-center gap-1.5">
+                        <i class="fa-solid fa-user-doctor text-sm"></i> <span id="nav-doc">Doctors Status</span>
+                    </button>
+                    <button onclick="switchTab('facilities')" id="tab-facilities" class="nav-btn px-3 py-2 text-xs font-semibold text-slate-600 hover:text-teal-700 transition-all rounded-lg flex items-center gap-1.5 tab-active">
+                        <i class="fa-solid fa-hospital text-sm"></i> <span id="nav-fac">Hospitals & Beds</span>
+                    </button>
+                    <button onclick="switchTab('records')" id="tab-records" class="nav-btn px-3 py-2 text-xs font-semibold text-slate-600 hover:text-teal-700 transition-all rounded-lg flex items-center gap-1.5">
+                        <i class="fa-solid fa-file-medical text-sm"></i> <span id="nav-records">Medical History Report</span>
+                    </button>
+                    <button onclick="switchTab('stores')" id="tab-stores" title="Medical Stores Nearby" class="nav-btn nav-extra px-3 py-2 text-xs font-semibold text-slate-600 hover:text-teal-700 transition-all rounded-lg flex items-center gap-1.5">
+                        <i class="fa-solid fa-store text-sm"></i> <span id="nav-store" class="nav-extra-label">Medical Stores Nearby</span>
+                    </button>
+                    <button onclick="switchTab('ddssy')" id="tab-ddssy" class="nav-btn px-3 py-2 text-xs font-semibold text-slate-600 hover:text-teal-700 transition-all rounded-lg flex items-center gap-1.5">
+                        <i class="fa-solid fa-shield-halved text-sm"></i> <span id="nav-ddssy">DDSSY & Insurance</span>
+                    </button>
+                    <button onclick="switchTab('emergency')" id="tab-emergency" class="nav-btn px-3 py-2 text-xs font-semibold text-rose-600 hover:text-rose-700 transition-all rounded-lg flex items-center gap-1.5 bg-rose-50">
+                        <i class="fa-solid fa-truck-medical text-sm animate-pulse"></i> <span id="nav-sos">Symptom Triage & SOS</span>
+                    </button>
+                    <button onclick="switchTab('profile')" id="tab-profile" class="nav-btn px-3 py-2 text-xs font-semibold text-slate-600 hover:text-teal-700 transition-all rounded-lg flex items-center gap-1.5">
+                        <i class="fa-solid fa-id-card text-sm"></i> <span id="nav-profile">User Profile</span>
+                    </button>
+                </nav>
+
+                <!-- Right Header Actions (User Badge & Language Selector) -->
+                <div class="flex items-center gap-3">
+                    <!-- User Profile Quick Badge -->
+                    <button onclick="switchTab('profile')" class="hidden sm:flex items-center gap-2 bg-slate-100 hover:bg-teal-50 border border-slate-200 rounded-xl px-2.5 py-1.5 transition">
+                        <div class="w-6 h-6 rounded-full bg-teal-600 text-white font-bold text-[10px] flex items-center justify-center" id="headerAvatarInitials">
+                            EF
+                        </div>
+                        <span class="text-xs font-bold text-slate-700 max-w-[100px] truncate" id="headerProfileName">Eshaan</span>
+                    </button>
+
+                    <!-- Language Switcher -->
+                    <div class="flex items-center gap-1.5 bg-slate-100 border border-slate-200 rounded-xl px-2.5 py-1.5">
+                        <i class="fa-solid fa-globe text-teal-600 text-xs"></i>
+                        <select id="langSelect" onchange="changeLanguage(this.value)" class="bg-transparent text-slate-700 text-xs font-semibold focus:outline-none cursor-pointer">
+                            <option value="en">English</option>
+                            <option value="gom">कोंकणी (Konkani)</option>
+                            <option value="hi">हिंदी (Hindi)</option>
+                            <option value="mr">मराठी (Marathi)</option>
+                        </select>
+                    </div>
+
+                    <!-- Mobile Menu Button -->
+                    <button onclick="toggleMobileMenu()" class="lg:hidden p-2 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-100">
+                        <i class="fa-solid fa-bars text-lg"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mobile Menu Dropdown -->
+        <div id="mobile-menu" class="hidden lg:hidden bg-white border-b border-slate-200 px-4 pt-2 pb-4 space-y-2 shadow-lg">
+            <button onclick="switchTab('appointments'); toggleMobileMenu()" class="w-full text-left px-3 py-2 text-slate-700 rounded-lg hover:bg-slate-100 flex items-center gap-2 text-sm font-semibold">
+                <i class="fa-solid fa-calendar-check text-teal-600"></i> Appointments & Live Crowd
+            </button>
+            <button onclick="switchTab('doctors'); toggleMobileMenu()" class="w-full text-left px-3 py-2 text-slate-700 rounded-lg hover:bg-slate-100 flex items-center gap-2 text-sm font-semibold">
+                <i class="fa-solid fa-user-doctor text-teal-600"></i> Doctors On-Duty Status
+            </button>
+            <button onclick="switchTab('facilities'); toggleMobileMenu()" class="w-full text-left px-3 py-2 text-slate-700 rounded-lg hover:bg-slate-100 flex items-center gap-2 text-sm font-semibold">
+                <i class="fa-solid fa-hospital text-teal-600"></i> Hospitals & Bed Availability
+            </button>
+            <button onclick="switchTab('records'); toggleMobileMenu()" class="w-full text-left px-3 py-2 text-slate-700 rounded-lg hover:bg-slate-100 flex items-center gap-2 text-sm font-semibold">
+                <i class="fa-solid fa-file-medical text-teal-600"></i> Medical History Report
+            </button>
+            <button onclick="switchTab('stores'); toggleMobileMenu()" class="w-full text-left px-3 py-2 text-slate-700 rounded-lg hover:bg-slate-100 flex items-center gap-2 text-sm font-semibold">
+                <i class="fa-solid fa-store text-teal-600"></i> Medical Stores Nearby
+            </button>
+            <button onclick="switchTab('ddssy'); toggleMobileMenu()" class="w-full text-left px-3 py-2 text-slate-700 rounded-lg hover:bg-slate-100 flex items-center gap-2 text-sm font-semibold">
+                <i class="fa-solid fa-shield-halved text-teal-600"></i> DDSSY & Insurance
+            </button>
+            <button onclick="switchTab('emergency'); toggleMobileMenu()" class="w-full text-left px-3 py-2 text-rose-700 bg-rose-50 rounded-lg font-bold flex items-center gap-2 text-sm">
+                <i class="fa-solid fa-truck-medical text-rose-600"></i> Symptom Triage & SOS Emergency
+            </button>
+            <button onclick="switchTab('profile'); toggleMobileMenu()" class="w-full text-left px-3 py-2 text-slate-700 rounded-lg hover:bg-slate-100 flex items-center gap-2 text-sm font-semibold">
+                <i class="fa-solid fa-id-card text-teal-600"></i> User Profile & DDSSY Card
+            </button>
+        </div>
+    </header>
+
+    <main class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8">
+
+        <!-- 1. HOSPITALS & BEDS COLUMN -->
+        <section id="section-facilities" class="space-y-6">
+            <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+                <div>
+                    <h1 class="text-2xl font-bold text-slate-900" id="title-hospitals">Hospitals & Bed Availability in Goa</h1>
+                    <p class="text-slate-500 text-xs mt-1" id="sub-hospitals">Live bed availability tracking across government and empaneled private hospitals with direct Google Maps routes.</p>
+                    <div id="liveStatusFacilities"></div>
+                </div>
+                
+                <!-- Filters -->
+                <div class="flex flex-wrap items-center gap-2 w-full md:w-auto">
+                    <div class="relative flex-1 sm:w-48">
+                        <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-slate-400 text-xs"></i>
+                        <input type="text" id="hospitalSearch" onkeyup="filterHospitals()" placeholder="Search facility name or locality..." class="w-full pl-8 pr-3 py-2 border border-slate-300 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-teal-500">
+                    </div>
+                    <select id="districtFilter" onchange="filterHospitals()" class="border border-slate-300 rounded-xl px-3 py-2 text-xs bg-white focus:outline-none focus:ring-2 focus:ring-teal-500 font-medium">
+                        <option value="all">All Regions</option>
+                        <option value="North Goa">North Goa</option>
+                        <option value="South Goa">South Goa</option>
+                    </select>
+                    <select id="careTypeFilter" onchange="filterHospitals()" class="border border-slate-300 rounded-xl px-3 py-2 text-xs bg-white focus:outline-none focus:ring-2 focus:ring-teal-500 font-medium">
+                        <option value="all">All Hospital Types</option>
+                        <option value="Public">Public / Government</option>
+                        <option value="Private">Private Empaneled</option>
+                        <option value="Super Specialty">Super Specialty</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Hospital Grid Cards -->
+            <div id="hospitalGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"><div class="col-span-full py-8 text-center text-slate-500 text-xs">Loading live hospital data from the server...</div></div>
+        </section>
+
+        <!-- 2. DOCTORS STATUS COLUMN WITH REAL-TIME SEARCH -->
+        <section id="section-doctors" class="space-y-6 hidden">
+            <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-6">
+                <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 border-b border-slate-100 pb-4">
+                    <div>
+                        <h2 class="text-xl font-bold text-slate-900 flex items-center gap-2">
+                            <i class="fa-solid fa-user-doctor text-teal-600"></i> Doctors On-Duty & Specialty Search
+                        </h2>
+                        <p class="text-xs text-slate-500 mt-0.5">Real-time duty rosters, specialty consultation rooms, and DDSSY fee structure.</p>
+                        <div id="liveStatusDoctors"></div>
+                    </div>
+
+                    <!-- Search Bar for Doctors & Specialty -->
+                    <div class="flex flex-col sm:flex-row gap-2 w-full md:w-auto">
+                        <div class="relative w-full sm:w-80">
+                            <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-2.5 text-slate-400 text-sm"></i>
+                            <input type="text" id="doctorSearch" onkeyup="filterDoctors()" placeholder="Search Doctor Name or Specialty (e.g. Cardiology)..." class="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-teal-500 font-medium">
+                        </div>
+                        <select id="doctorSpecFilter" onchange="filterDoctors()" class="border border-slate-300 rounded-xl px-3 py-2 text-xs bg-white focus:outline-none focus:ring-2 focus:ring-teal-500 font-semibold">
+                            <option value="all">All Specialties</option>
+                            <option value="Cardiology">Cardiology</option>
+                            <option value="Orthopedics">Orthopedics</option>
+                            <option value="Pediatrics">Pediatrics</option>
+                            <option value="Neurology">Neurology</option>
+                            <option value="Gynecology">Gynecology</option>
+                            <option value="General Medicine">General Medicine</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Doctors Grid -->
+                <div id="doctorsList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"><div class="col-span-full py-8 text-center text-slate-500 text-xs">Loading live doctor roster from the server...</div></div>
+            </div>
+        </section>
+
+        <!-- 3. MEDICAL HISTORY REPORT COLUMN -->
+        <section id="section-records" class="space-y-6 hidden">
+            <div id="printable-report" class="bg-white p-6 sm:p-8 rounded-2xl border border-slate-200 shadow-sm space-y-6">
+                
+                <!-- Patient Summary Card Header -->
+                <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-slate-200 pb-6">
+                    <div class="flex items-center gap-4">
+                        <div class="w-16 h-16 rounded-2xl bg-teal-100 text-teal-800 flex items-center justify-center text-2xl font-bold border border-teal-200 shrink-0" id="reportAvatar">
+                            EF
+                        </div>
+                        <div>
+                            <div class="flex items-center gap-2">
+                                <h2 class="text-xl font-bold text-slate-900" id="reportName">Eshaan Fernandes</h2>
+                                <span class="bg-emerald-100 text-emerald-800 text-[10px] font-bold px-2 py-0.5 rounded-full border border-emerald-200">DDSSY Active</span>
+                            </div>
+                            <div class="text-xs text-slate-500 mt-1 flex flex-wrap gap-x-4 gap-y-1">
+                                <span><strong>Phone:</strong> <span id="reportPhone">+91 98221 44832</span></span>
+                                <span><strong>Blood Group:</strong> <span id="reportBlood">O+ Positive</span></span>
+                                <span><strong>DDSSY ID:</strong> <span id="reportDdssy">GOA-8842-2026</span></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Record Action Buttons -->
+                    <div class="flex items-center gap-2 no-print w-full sm:w-auto">
+                        <button onclick="openAddRecordModal()" class="flex-1 sm:flex-initial px-4 py-2.5 bg-teal-600 hover:bg-teal-700 text-white font-bold text-xs rounded-xl transition flex items-center justify-center gap-2 shadow-sm">
+                            <i class="fa-solid fa-plus"></i> Add History Record
+                        </button>
+                        <button onclick="window.print()" class="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs rounded-xl transition flex items-center justify-center gap-2 border border-slate-300">
+                            <i class="fa-solid fa-print"></i> Print Report
+                        </button>
+                    </div>
+                </div>
+
+                <!-- History Records Table -->
+                <div class="space-y-4">
+                    <h3 class="text-base font-bold text-slate-900 flex items-center gap-2">
+                        <i class="fa-solid fa-clock-rotate-left text-teal-600"></i> Encounters & Medical Records History
+                    </h3>
+
+                    <div class="overflow-x-auto rounded-xl border border-slate-200">
+                        <table class="w-full text-left text-xs">
+                            <thead class="bg-slate-100 text-slate-700 uppercase font-bold border-b border-slate-200">
+                                <tr>
+                                    <th class="p-3">Date</th>
+                                    <th class="p-3">Facility / Doctor</th>
+                                    <th class="p-3">Diagnosis</th>
+                                    <th class="p-3">Prescription & Treatment</th>
+                                    <th class="p-3">Follow-up</th>
+                                    <th class="p-3 text-right no-print">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="medicalRecordsTableBody" class="divide-y divide-slate-100 text-slate-600"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Doctor's Prescription Images -->
+            <div id="prescriptionCard" class="bg-white p-6 sm:p-8 rounded-2xl border border-slate-200 shadow-sm space-y-5 no-print">
+                <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b border-slate-200 pb-4">
+                    <div>
+                        <h3 class="text-base font-bold text-slate-900 flex items-center gap-2">
+                            <i class="fa-solid fa-file-prescription text-teal-600"></i> Doctor's Prescription Images
+                            <span id="rxCount" class="bg-teal-100 text-teal-800 text-[10px] font-bold px-2 py-0.5 rounded-full border border-teal-200">0</span>
+                        </h3>
+                        <p class="text-xs text-slate-500 mt-0.5">Upload or photograph a prescription and keep it with your medical history.</p>
+                    </div>
+                    <button onclick="openRxModal()" class="w-full sm:w-auto px-4 py-2.5 bg-teal-600 hover:bg-teal-700 text-white font-bold text-xs rounded-xl transition flex items-center justify-center gap-2 shadow-sm">
+                        <i class="fa-solid fa-image"></i> Add Prescription Image
+                    </button>
+                </div>
+                <div id="rxGrid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"></div>
+            </div>
+
+            <!-- Modal: add prescription image -->
+            <div id="rxModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-xs flex items-center justify-center p-4 z-50 hidden no-print">
+                <div class="bg-white rounded-2xl max-w-lg w-full p-6 space-y-4 shadow-xl border border-slate-200 max-h-[92vh] overflow-y-auto">
+                    <div class="flex justify-between items-center border-b pb-3">
+                        <h3 class="font-bold text-slate-900 text-base">Add Prescription Image</h3>
+                        <button onclick="closeRxModal()" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-lg"></i></button>
+                    </div>
+                    <form id="rxForm" onsubmit="saveRx(event)" class="space-y-3">
+                        <div>
+                            <label class="block text-[11px] font-bold text-slate-700 mb-1">Prescription Photo</label>
+                            <div class="grid grid-cols-2 gap-2">
+                                <label class="cursor-pointer py-2.5 rounded-xl border border-slate-300 hover:border-teal-500 hover:bg-teal-50 text-xs font-bold text-slate-700 flex items-center justify-center gap-1.5 transition">
+                                    <i class="fa-solid fa-upload text-teal-600"></i> Choose from device
+                                    <input type="file" accept="image/*" class="hidden" onchange="rxFileChosen(this)">
+                                </label>
+                                <label class="cursor-pointer py-2.5 rounded-xl border border-slate-300 hover:border-teal-500 hover:bg-teal-50 text-xs font-bold text-slate-700 flex items-center justify-center gap-1.5 transition">
+                                    <i class="fa-solid fa-camera text-teal-600"></i> Take a photo
+                                    <input type="file" accept="image/*" capture="environment" class="hidden" onchange="rxFileChosen(this)">
+                                </label>
+                            </div>
+                            <div id="rxPreviewWrap" class="hidden mt-3 rounded-xl border border-slate-200 bg-slate-50 p-2">
+                                <img id="rxPreview" alt="Prescription preview" class="max-h-56 mx-auto rounded-lg">
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <label class="block text-[11px] font-bold text-slate-700 mb-1">Prescription Date</label>
+                                <input type="date" id="rxDate" required class="w-full p-2 border border-slate-300 rounded-xl text-xs">
+                            </div>
+                            <div>
+                                <label class="block text-[11px] font-bold text-slate-700 mb-1">Doctor / Facility</label>
+                                <input type="text" id="rxDoctor" required placeholder="e.g. Dr. Amol Tilve, GMC" class="w-full p-2 border border-slate-300 rounded-xl text-xs">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-bold text-slate-700 mb-1">Note (optional)</label>
+                            <input type="text" id="rxNote" placeholder="e.g. BP medicines, 3 months" class="w-full p-2 border border-slate-300 rounded-xl text-xs">
+                        </div>
+                        <div id="rxMsg" class="text-xs font-semibold text-rose-600 hidden"></div>
+                        <div class="flex justify-end gap-2 pt-2">
+                            <button type="button" onclick="closeRxModal()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-xl">Cancel</button>
+                            <button type="submit" class="px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white text-xs font-bold rounded-xl shadow-sm">Save Prescription</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Modal: view prescription image -->
+            <div id="rxViewModal" class="fixed inset-0 bg-slate-900/70 backdrop-blur-xs flex items-center justify-center p-4 z-50 hidden no-print" onclick="if(event.target===this)closeRxView()">
+                <div class="bg-white rounded-2xl max-w-3xl w-full p-4 space-y-3 shadow-xl border border-slate-200 max-h-[94vh] overflow-y-auto">
+                    <div class="flex justify-between items-start gap-3">
+                        <div>
+                            <h3 class="font-bold text-slate-900 text-sm" id="rxViewTitle"></h3>
+                            <p class="text-[11px] text-slate-500" id="rxViewMeta"></p>
+                        </div>
+                        <button onclick="closeRxView()" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-lg"></i></button>
+                    </div>
+                    <img id="rxViewImg" alt="Prescription" class="w-full rounded-xl border border-slate-200">
+                    <a id="rxViewDownload" download="prescription.jpg" class="inline-flex items-center gap-1.5 px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold border border-slate-300"><i class="fa-solid fa-download"></i> Download image</a>
+                </div>
+            </div>
+
+            <!-- Modal for Adding New Medical History Record -->
+            <div id="addRecordModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-xs flex items-center justify-center p-4 z-50 hidden no-print">
+                <div class="bg-white rounded-2xl max-w-lg w-full p-6 space-y-4 shadow-xl border border-slate-200">
+                    <div class="flex justify-between items-center border-b pb-3">
+                        <h3 class="font-bold text-slate-900 text-base">Add New Medical History Entry</h3>
+                        <button onclick="closeAddRecordModal()" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-lg"></i></button>
+                    </div>
+                    <form id="recordForm" onsubmit="saveMedicalRecord(event)" class="space-y-3">
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <label class="block text-[11px] font-bold text-slate-700 mb-1">Date</label>
+                                <input type="date" id="recDate" required class="w-full p-2 border border-slate-300 rounded-xl text-xs">
+                            </div>
+                            <div>
+                                <label class="block text-[11px] font-bold text-slate-700 mb-1">Follow-up Date</label>
+                                <input type="date" id="recFollowup" class="w-full p-2 border border-slate-300 rounded-xl text-xs">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-bold text-slate-700 mb-1">Facility / Doctor Name</label>
+                            <input type="text" id="recFacility" required placeholder="e.g. GMC Bambolim / Dr. Amol Tilve" class="w-full p-2 border border-slate-300 rounded-xl text-xs">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-bold text-slate-700 mb-1">Diagnosis</label>
+                            <input type="text" id="recDiagnosis" required placeholder="e.g. Acute Hypertension" class="w-full p-2 border border-slate-300 rounded-xl text-xs">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-bold text-slate-700 mb-1">Prescribed Medications & Treatment</label>
+                            <textarea id="recPrescription" required rows="3" placeholder="e.g. Amlodipine 5mg OD, Low Salt Diet..." class="w-full p-2 border border-slate-300 rounded-xl text-xs"></textarea>
+                        </div>
+                        <div class="flex justify-end gap-2 pt-2">
+                            <button type="button" onclick="closeAddRecordModal()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-xl">Cancel</button>
+                            <button type="submit" class="px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white text-xs font-bold rounded-xl shadow-sm">Save Entry</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </section>
+
+        <!-- 4. USER PROFILE MANAGEMENT COLUMN -->
+        <section id="section-profile" class="space-y-6 hidden">
+            <div class="bg-white p-6 sm:p-8 rounded-2xl border border-slate-200 shadow-sm max-w-3xl mx-auto space-y-6">
+                <div class="flex items-center justify-between border-b border-slate-200 pb-4">
+                    <div class="flex items-center gap-3">
+                        <div class="w-12 h-12 rounded-2xl bg-teal-600 text-white flex items-center justify-center font-bold text-lg shadow-sm" id="profileCardAvatar">
+                            EF
+                        </div>
+                        <div>
+                            <h2 class="text-xl font-bold text-slate-900">User Health Profile</h2>
+                            <p class="text-xs text-slate-500">Manage your personal demographics, DDSSY details, and emergency contacts.</p>
+                        </div>
+                    </div>
+                    <button onclick="logoutUser()" class="px-3 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-700 rounded-xl text-xs font-bold transition flex items-center gap-1.5">
+                        <i class="fa-solid fa-right-from-bracket"></i> Sign Out
+                    </button>
+                </div>
+
+                <form id="profileForm" onsubmit="saveUserProfile(event)" class="space-y-4">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Full Name</label>
+                            <input type="text" id="profName" required class="w-full p-2.5 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-teal-500 focus:outline-none font-medium">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Mobile Phone Number</label>
+                            <input type="text" id="profPhone" required class="w-full p-2.5 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-teal-500 focus:outline-none font-medium">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Emergency Contact Number</label>
+                            <input type="text" id="profEmerg" required class="w-full p-2.5 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-teal-500 focus:outline-none font-medium">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Blood Group</label>
+                            <select id="profBlood" class="w-full p-2.5 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-teal-500 focus:outline-none font-medium bg-white">
+                                <option value="O+ Positive">O+ Positive</option>
+                                <option value="O- Negative">O- Negative</option>
+                                <option value="A+ Positive">A+ Positive</option>
+                                <option value="A- Negative">A- Negative</option>
+                                <option value="B+ Positive">B+ Positive</option>
+                                <option value="B- Negative">B- Negative</option>
+                                <option value="AB+ Positive">AB+ Positive</option>
+                                <option value="AB- Negative">AB- Negative</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">DDSSY Card Number</label>
+                            <input type="text" id="profDdssy" placeholder="GOA-XXXX-XXXX" class="w-full p-2.5 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-teal-500 focus:outline-none font-medium">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Residential Address / Village</label>
+                            <input type="text" id="profAddress" placeholder="e.g. Panaji, Tiswadi, Goa" class="w-full p-2.5 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-teal-500 focus:outline-none font-medium">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Known Drug Allergies</label>
+                            <input type="text" id="profAllergies" placeholder="e.g. Penicillin, Sulfa" class="w-full p-2.5 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-teal-500 focus:outline-none font-medium">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Existing Chronic Conditions</label>
+                            <input type="text" id="profConditions" placeholder="e.g. Type-2 Diabetes, Asthma" class="w-full p-2.5 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-teal-500 focus:outline-none font-medium">
+                        </div>
+                    </div>
+
+                    <div class="flex items-center justify-between pt-4 border-t border-slate-100">
+                        <span id="profileSaveStatus" class="text-xs font-semibold text-emerald-600 hidden"><i class="fa-solid fa-circle-check mr-1"></i> Profile saved successfully!</span>
+                        <button type="submit" class="px-6 py-2.5 bg-teal-600 hover:bg-teal-700 text-white font-bold text-xs rounded-xl shadow-md transition ml-auto">
+                            Save Profile Changes
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </section>
+
+        <!-- 5. DDSSY COST ESTIMATOR COLUMN -->
+        <section id="section-ddssy" class="space-y-6 hidden">
+            <div class="max-w-3xl mx-auto flex gap-2 bg-white p-1.5 rounded-2xl border border-slate-200 shadow-sm text-xs font-bold">
+                <button id="ins-tab-ddssy" onclick="ddssyTab('ddssy')" class="flex-1 py-2 rounded-xl bg-teal-600 text-white"><i class="fa-solid fa-calculator mr-1"></i>DDSSY Estimator</button>
+                <button id="ins-tab-health" onclick="ddssyTab('health')" class="flex-1 py-2 rounded-xl text-slate-600 hover:bg-slate-100"><i class="fa-solid fa-heart-circle-plus mr-1"></i>Health Insurance</button>
+                <button id="ins-tab-life" onclick="ddssyTab('life')" class="flex-1 py-2 rounded-xl text-slate-600 hover:bg-slate-100"><i class="fa-solid fa-umbrella mr-1"></i>Life Insurance</button>
+            </div>
+            <div id="ins-pane-ddssy">
+            <div class="bg-white p-6 sm:p-8 rounded-2xl border border-slate-200 shadow-sm max-w-3xl mx-auto space-y-6">
+                <div class="flex items-center gap-4 border-b border-slate-100 pb-4">
+                    <div class="w-12 h-12 bg-teal-100 text-teal-700 rounded-2xl flex items-center justify-center text-2xl font-bold shrink-0 border border-teal-200">
+                        <i class="fa-solid fa-shield-halved"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-xl font-bold text-slate-900">Deen Dayal Swasthya Seva Yojana (DDSSY)</h2>
+                        <p class="text-xs text-slate-500 mt-0.5">Calculate hospital procedure coverage and estimated out-of-pocket costs for Goa cardholders.</p>
+                    </div>
+                </div>
+
+                <div class="space-y-4">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 mb-1">Family Card Type / Cover Cap</label>
+                            <select id="ddssyFamily" class="w-full p-2.5 border border-slate-300 rounded-xl text-xs font-medium focus:ring-2 focus:ring-teal-500 bg-white">
+                                <option value="250000">Small Family (Up to 3 Members) - Max ₹2,50,000</option>
+                                <option value="400000">Large Family (4+ Members) - Max ₹4,00,000</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 mb-1">Hospital Category</label>
+                            <select id="ddssyHospType" class="w-full p-2.5 border border-slate-300 rounded-xl text-xs font-medium focus:ring-2 focus:ring-teal-500 bg-white">
+                                <option value="Govt">Government Hospital (100% Free under DDSSY)</option>
+                                <option value="PrivateEmpaneled">Empaneled Private Hospital (Package Rate)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">Select Surgical / Medical Procedure</label>
+                        <select id="ddssyProcedure" class="w-full p-2.5 border border-slate-300 rounded-xl text-xs font-medium focus:ring-2 focus:ring-teal-500 bg-white">
+                            <option value="25000">Appendectomy / Hernia Repair (~₹25,000)</option>
+                            <option value="85000">Total Knee Replacement (~₹85,000)</option>
+                            <option value="150000">Coronary Angioplasty + Stent (~₹1,50,000)</option>
+                            <option value="300000">Neurosurgery / Craniotomy (~₹3,00,000)</option>
+                            <option value="450000">Complex Oncology Resection (~₹4,50,000)</option>
+                        </select>
+                    </div>
+
+                    <button onclick="calculateDDSSY()" class="w-full py-3 bg-teal-600 hover:bg-teal-700 text-white font-bold text-xs rounded-xl transition shadow-sm flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-calculator"></i> Calculate Scheme Coverage & Out-of-Pocket Cost
+                    </button>
+
+                    <div id="ddssyResult" class="p-4 bg-teal-50 border border-teal-200 rounded-xl hidden text-xs text-teal-900 space-y-2"></div>
+                </div>
+            </div>
+        
+            </div>
+            <div id="ins-pane-health" class="hidden max-w-3xl mx-auto bg-white p-6 sm:p-8 rounded-2xl border border-slate-200 shadow-sm space-y-5">
+                <div class="flex items-center gap-4 border-b border-slate-100 pb-4">
+                    <div class="w-12 h-12 bg-rose-100 text-rose-700 rounded-2xl flex items-center justify-center text-2xl shrink-0 border border-rose-200"><i class="fa-solid fa-heart-circle-plus"></i></div>
+                    <div><h2 class="text-xl font-bold text-slate-900">Health Insurance</h2><p class="text-xs text-slate-500 mt-0.5">Estimate a premium and add private cover on top of DDSSY.</p></div>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div><label class="block text-xs font-semibold text-slate-700 mb-1">Who to cover</label>
+                        <select id="hiWho" class="w-full p-2.5 border border-slate-300 rounded-xl text-xs bg-white"><option value="1">Self</option><option value="1.8">Self + Spouse</option><option value="2.4">Family (2 adults + 2 kids)</option><option value="2.2">Parents (senior)</option></select></div>
+                    <div><label class="block text-xs font-semibold text-slate-700 mb-1">Age of eldest member</label>
+                        <input id="hiAge" type="number" min="18" max="80" value="35" class="w-full p-2.5 border border-slate-300 rounded-xl text-xs"></div>
+                    <div><label class="block text-xs font-semibold text-slate-700 mb-1">Sum insured</label>
+                        <select id="hiSum" class="w-full p-2.5 border border-slate-300 rounded-xl text-xs bg-white"><option value="3">Rs 3 Lakh</option><option value="5" selected>Rs 5 Lakh</option><option value="10">Rs 10 Lakh</option><option value="20">Rs 20 Lakh</option><option value="50">Rs 50 Lakh</option></select></div>
+                </div>
+                <div class="flex flex-wrap gap-4 text-xs text-slate-700">
+                    <label class="flex items-center gap-2"><input type="checkbox" id="hiCI"> Critical illness rider</label>
+                    <label class="flex items-center gap-2"><input type="checkbox" id="hiMat"> Maternity cover</label>
+                    <label class="flex items-center gap-2"><input type="checkbox" id="hiTop"> Super top-up over DDSSY</label>
+                </div>
+                <button onclick="calcHealthIns()" class="w-full py-3 bg-teal-600 hover:bg-teal-700 text-white font-bold text-xs rounded-xl shadow-sm">Estimate Health Insurance Premium</button>
+                <div id="hiResult" class="hidden p-4 bg-teal-50 border border-teal-200 rounded-xl text-xs text-teal-900 space-y-1"></div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                    <div class="p-3 rounded-xl border border-slate-200 bg-slate-50"><b>Individual / Family Floater</b><br>One policy for one person, or one shared sum insured for the whole family.</div>
+                    <div class="p-3 rounded-xl border border-slate-200 bg-slate-50"><b>Senior Citizen Plan</b><br>For 60+, usually with pre-existing disease cover after a waiting period.</div>
+                    <div class="p-3 rounded-xl border border-slate-200 bg-slate-50"><b>Super Top-up</b><br>Low-cost extra cover that starts after a deductible or after DDSSY is exhausted.</div>
+                    <div class="p-3 rounded-xl border border-slate-200 bg-slate-50"><b>Critical Illness</b><br>Lump-sum payout on diagnosis of listed conditions such as cancer or heart attack.</div>
+                </div>
+                <p class="text-[11px] text-slate-500">Check before buying: waiting periods, room-rent limits, co-payment, and whether your preferred Goa hospital is in the cashless network. Premiums may qualify for Section 80D deduction. Figures are indicative only, so get an actual quote from a licensed insurer or agent.</p>
+            </div>
+            <div id="ins-pane-life" class="hidden max-w-3xl mx-auto bg-white p-6 sm:p-8 rounded-2xl border border-slate-200 shadow-sm space-y-5">
+                <div class="flex items-center gap-4 border-b border-slate-100 pb-4">
+                    <div class="w-12 h-12 bg-indigo-100 text-indigo-700 rounded-2xl flex items-center justify-center text-2xl shrink-0 border border-indigo-200"><i class="fa-solid fa-umbrella"></i></div>
+                    <div><h2 class="text-xl font-bold text-slate-900">Life Insurance</h2><p class="text-xs text-slate-500 mt-0.5">Estimate term cover and how much protection your family needs.</p></div>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-4 gap-4">
+                    <div><label class="block text-xs font-semibold text-slate-700 mb-1">Age</label><input id="liAge" type="number" min="18" max="60" value="30" class="w-full p-2.5 border border-slate-300 rounded-xl text-xs"></div>
+                    <div><label class="block text-xs font-semibold text-slate-700 mb-1">Gender</label><select id="liGender" class="w-full p-2.5 border border-slate-300 rounded-xl text-xs bg-white"><option value="1">Male</option><option value="0.85">Female</option></select></div>
+                    <div><label class="block text-xs font-semibold text-slate-700 mb-1">Tobacco use</label><select id="liSmoke" class="w-full p-2.5 border border-slate-300 rounded-xl text-xs bg-white"><option value="1">No</option><option value="1.8">Yes</option></select></div>
+                    <div><label class="block text-xs font-semibold text-slate-700 mb-1">Life cover</label><select id="liCover" class="w-full p-2.5 border border-slate-300 rounded-xl text-xs bg-white"><option value="0.25">Rs 25 Lakh</option><option value="0.5">Rs 50 Lakh</option><option value="1" selected>Rs 1 Crore</option><option value="2">Rs 2 Crore</option></select></div>
+                </div>
+                <div><label class="block text-xs font-semibold text-slate-700 mb-1">Annual income (optional, for suggested cover)</label><input id="liIncome" type="number" min="0" placeholder="e.g. 600000" class="w-full p-2.5 border border-slate-300 rounded-xl text-xs"></div>
+                <button onclick="calcLifeIns()" class="w-full py-3 bg-teal-600 hover:bg-teal-700 text-white font-bold text-xs rounded-xl shadow-sm">Estimate Life Insurance Premium</button>
+                <div id="liResult" class="hidden p-4 bg-teal-50 border border-teal-200 rounded-xl text-xs text-teal-900 space-y-1"></div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                    <div class="p-3 rounded-xl border border-slate-200 bg-slate-50"><b>Term Plan</b><br>Pure protection with the highest cover for the lowest premium.</div>
+                    <div class="p-3 rounded-xl border border-slate-200 bg-slate-50"><b>Endowment / Money-back</b><br>Insurance plus guaranteed savings, with lower cover per rupee.</div>
+                    <div class="p-3 rounded-xl border border-slate-200 bg-slate-50"><b>Whole Life</b><br>Cover for a very long term, often up to age 99 or 100.</div>
+                    <div class="p-3 rounded-xl border border-slate-200 bg-slate-50"><b>ULIP / Pension Plans</b><br>Market-linked investment or retirement income combined with cover.</div>
+                </div>
+                <p class="text-[11px] text-slate-500">A common rule of thumb is cover of 10 to 15 times annual income. Premiums may qualify for Section 80C, and payouts for Section 10(10D), under current rules. Estimates are indicative only, so get an actual quote from a licensed insurer.</p>
+            </div>
+        </section>
+
+        <!-- 6. SYMPTOM TRIAGE & EMERGENCY SOS COLUMN -->
+        <section id="section-emergency" class="space-y-6 hidden">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- 108 Emergency Direct Hotline Card -->
+                <div class="bg-rose-50 border-2 border-rose-200 p-6 rounded-2xl space-y-4 flex flex-col justify-between shadow-sm">
+                    <div class="space-y-3">
+                        <div class="flex items-center gap-3 text-rose-700">
+                            <i class="fa-solid fa-truck-medical text-3xl animate-bounce"></i>
+                            <div>
+                                <h2 class="text-lg font-extrabold">Goa 108 Emergency Ambulance</h2>
+                                <span class="text-[10px] uppercase tracking-wider font-bold bg-rose-200 text-rose-900 px-2 py-0.5 rounded-md">24x7 Response</span>
+                            </div>
+                        </div>
+                        <p class="text-xs text-rose-800 leading-relaxed">
+                            Immediate 108 trauma and mobile ICU dispatch across Goa. Direct link with GMC Bambolim and District ER units.
+                        </p>
+                    </div>
+
+                    <div class="space-y-2 pt-2">
+                        <a href="tel:108" class="w-full py-3.5 bg-rose-600 hover:bg-rose-700 text-white font-extrabold text-center rounded-xl flex items-center justify-center gap-2 text-base shadow-md transition">
+                            <i class="fa-solid fa-phone-volume text-xl"></i> Call 108 Ambulance
+                        </a>
+                        <a href="tel:104" class="w-full py-2.5 bg-white border border-rose-300 text-rose-800 font-bold text-center rounded-xl flex items-center justify-center gap-2 text-xs shadow-xs hover:bg-rose-100 transition">
+                            <i class="fa-solid fa-headset text-rose-600"></i> 104 Health Helpline
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Interactive Symptom Triage Tool -->
+                <div class="lg:col-span-2 bg-white border border-slate-200 p-6 rounded-2xl space-y-4 shadow-sm">
+                    <h3 class="text-base font-bold text-slate-900 flex items-center gap-2">
+                        <i class="fa-solid fa-stethoscope text-teal-600"></i> Quick Interactive Symptom Triage
+                    </h3>
+                    <p class="text-xs text-slate-500">Select present symptoms to receive immediate triage severity advice (Emergency ER vs OPD vs Self-Care).</p>
+
+                    <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                        <button onclick="assessTriage('chest_pain')" class="p-3 border border-slate-200 hover:border-rose-400 hover:bg-rose-50 rounded-xl text-left text-xs font-semibold text-slate-700 transition flex items-center gap-2">
+                            <i class="fa-solid fa-heart-circle-bolt text-rose-500 text-base"></i> Severe Chest Pain
+                        </button>
+                        <button onclick="assessTriage('trauma')" class="p-3 border border-slate-200 hover:border-amber-400 hover:bg-amber-50 rounded-xl text-left text-xs font-semibold text-slate-700 transition flex items-center gap-2">
+                            <i class="fa-solid fa-crutch text-amber-500 text-base"></i> Fracture / Trauma
+                        </button>
+                        <button onclick="assessTriage('maternity')" class="p-3 border border-slate-200 hover:border-teal-400 hover:bg-teal-50 rounded-xl text-left text-xs font-semibold text-slate-700 transition flex items-center gap-2">
+                            <i class="fa-solid fa-baby text-purple-500 text-base"></i> Maternity / Labor
+                        </button>
+                        <button onclick="assessTriage('fever')" class="p-3 border border-slate-200 hover:border-teal-400 hover:bg-teal-50 rounded-xl text-left text-xs font-semibold text-slate-700 transition flex items-center gap-2">
+                            <i class="fa-solid fa-temperature-high text-orange-500 text-base"></i> High Fever / Dengue
+                        </button>
+                        <button onclick="assessTriage('stroke')" class="p-3 border border-slate-200 hover:border-rose-400 hover:bg-rose-50 rounded-xl text-left text-xs font-semibold text-slate-700 transition flex items-center gap-2">
+                            <i class="fa-solid fa-brain text-indigo-500 text-base"></i> Numbness / Stroke
+                        </button>
+                        <button onclick="assessTriage('breath')" class="p-3 border border-slate-200 hover:border-rose-400 hover:bg-rose-50 rounded-xl text-left text-xs font-semibold text-slate-700 transition flex items-center gap-2">
+                            <i class="fa-solid fa-lungs text-cyan-500 text-base"></i> Breathing Distress
+                        </button>
+                    </div>
+
+                    <div id="triageResult" class="mt-4 p-4 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-600 hidden"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 7. APPOINTMENTS & LIVE CROWD COLUMN -->
+        <section id="section-appointments" class="space-y-6 hidden">
+            <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-3">
+                <div>
+                    <h2 class="text-xl font-bold text-slate-900 flex items-center gap-2">
+                        <i class="fa-solid fa-calendar-check text-teal-600"></i> Appointments & Live Crowd
+                    </h2>
+                    <p class="text-xs text-slate-500 mt-0.5">Ask a doctor or hospital for an appointment, see how crowded they are, and pick the quietest time.</p>
+                </div>
+                <span class="inline-flex items-center gap-1.5 text-[11px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2.5 py-1 rounded-full self-start">
+                    <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> Crowd levels update live · <span id="crowdUpdated">--:--</span>
+                </span>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-5 gap-6">
+                <!-- Request form -->
+                <div id="apptFormCard" class="lg:col-span-2 bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+                    <h3 class="text-base font-bold text-slate-900 flex items-center gap-2">
+                        <i class="fa-solid fa-paper-plane text-teal-600"></i> Request an Appointment
+                    </h3>
+
+                    <div>
+                        <label class="block text-[11px] font-bold text-slate-700 mb-1">Ask for an appointment with</label>
+                        <div class="grid grid-cols-2 gap-2">
+                            <button type="button" id="apptTypeDoctor" onclick="apptSetType('doctor')" class="py-2 rounded-xl border text-xs font-bold flex items-center justify-center gap-1.5 transition"><i class="fa-solid fa-user-doctor"></i> Doctor</button>
+                            <button type="button" id="apptTypeHospital" onclick="apptSetType('hospital')" class="py-2 rounded-xl border text-xs font-bold flex items-center justify-center gap-1.5 transition"><i class="fa-solid fa-hospital"></i> Hospital</button>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-[11px] font-bold text-slate-700 mb-1" id="apptProviderLabel">Select Doctor</label>
+                        <select id="apptProvider" onchange="apptSelectProvider(this.value)" class="w-full p-2.5 border border-slate-300 rounded-xl text-xs font-medium focus:ring-2 focus:ring-teal-500 focus:outline-none bg-white"></select>
+                    </div>
+
+                    <div id="apptCrowdPanel" class="p-3 rounded-xl bg-slate-50 border border-slate-200 space-y-2"></div>
+
+                    <div>
+                        <label class="block text-[11px] font-bold text-slate-700 mb-1">Preferred Date</label>
+                        <input type="date" id="apptDate" onchange="apptPickDate(this.value)" class="w-full p-2.5 border border-slate-300 rounded-xl text-xs font-medium focus:ring-2 focus:ring-teal-500 focus:outline-none">
+                    </div>
+
+                    <div>
+                        <label class="block text-[11px] font-bold text-slate-700 mb-1">Time Slot <span class="font-medium text-slate-400">(dot shows expected crowd)</span></label>
+                        <div id="apptSlots" class="grid grid-cols-3 sm:grid-cols-4 gap-2 max-h-56 overflow-y-auto pr-1"></div>
+                        <div class="flex flex-wrap gap-x-3 gap-y-1 pt-2 text-[10px] text-slate-500 font-medium">
+                            <span class="flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>Low</span>
+                            <span class="flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>Moderate</span>
+                            <span class="flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-orange-500"></span>High</span>
+                            <span class="flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span>Very Crowded</span>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-[11px] font-bold text-slate-700 mb-1">Reason for Visit</label>
+                        <input type="text" id="apptReason" placeholder="e.g. Follow-up check-up, fever, chest pain review..." class="w-full p-2.5 border border-slate-300 rounded-xl text-xs font-medium focus:ring-2 focus:ring-teal-500 focus:outline-none">
+                    </div>
+
+                    <div id="apptMsg" class="text-xs hidden"></div>
+
+                    <button type="button" onclick="apptSubmit()" class="w-full py-3 bg-teal-600 hover:bg-teal-700 text-white font-bold text-xs rounded-xl shadow-md transition flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-calendar-plus"></i> Request Appointment
+                    </button>
+                </div>
+
+                <!-- My appointments -->
+                <div class="lg:col-span-3 bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+                    <h3 class="text-base font-bold text-slate-900 flex items-center gap-2">
+                        <i class="fa-solid fa-clock text-teal-600"></i> My Appointments
+                    </h3>
+                    <div id="myAppointmentsList" class="space-y-3"></div>
+                </div>
+            </div>
+
+            <!-- Live crowd monitor -->
+            <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-5">
+                <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 border-b border-slate-100 pb-4">
+                    <div>
+                        <h3 class="text-base font-bold text-slate-900 flex items-center gap-2">
+                            <i class="fa-solid fa-people-group text-teal-600"></i> Live Crowd Monitor
+                        </h3>
+                        <p class="text-xs text-slate-500 mt-0.5">How busy each doctor's OPD or hospital is right now. Crowd levels are indicative estimates.</p>
+                    </div>
+                    <div class="relative w-full md:w-72">
+                        <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-2.5 text-slate-400 text-sm"></i>
+                        <input type="text" id="crowdSearch" onkeyup="renderCrowdGrid()" placeholder="Search name, specialty or hospital..." class="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-teal-500 font-medium">
+                    </div>
+                </div>
+                <div id="crowdGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+            </div>
+        </section>
+
+        <!-- 8. MEDICAL STORES NEARBY COLUMN -->
+        <section id="section-stores" class="space-y-6 hidden">
+            <div class="bg-white p-6 sm:p-8 rounded-2xl border border-slate-200 shadow-sm space-y-5">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 pb-5">
+                    <div class="flex items-center gap-4">
+                        <div class="w-14 h-14 rounded-2xl bg-teal-100 text-teal-800 flex items-center justify-center text-2xl border border-teal-200 shrink-0"><i class="fa-solid fa-store"></i></div>
+                        <div>
+                            <h2 class="text-xl font-bold text-slate-900">Medical Stores Nearby</h2>
+                            <p class="text-xs text-slate-500 mt-0.5">Find pharmacies, Jan Aushadhi kendras and 24x7 hospital pharmacies across Goa.</p>
+                        </div>
+                    </div>
+                    <div class="flex gap-2">
+                        <button onclick="storeLocate()" class="px-4 py-2.5 bg-teal-600 hover:bg-teal-700 text-white font-bold text-xs rounded-xl shadow-sm flex items-center gap-2"><i class="fa-solid fa-location-crosshairs"></i> Use My Location</button>
+                        <button onclick="storeMapsSearch()" class="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs rounded-xl flex items-center gap-2"><i class="fa-solid fa-map-location-dot"></i> Live Maps Search</button>
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <input id="storeSearch" oninput="renderStores()" placeholder="Search store or area..." class="p-2.5 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-teal-500 focus:outline-none">
+                    <select id="storeArea" onchange="storeAreaPick()" class="p-2.5 border border-slate-300 rounded-xl text-xs bg-white"><option value="">Or choose your area...</option></select>
+                    <select id="storeFilter" onchange="renderStores()" class="p-2.5 border border-slate-300 rounded-xl text-xs bg-white">
+                        <option value="all">All stores</option><option value="open">Open now</option><option value="24">24x7 only</option><option value="jan">Jan Aushadhi (low-cost generics)</option>
+                    </select>
+                </div>
+                <div id="storeMsg" class="hidden text-xs font-semibold text-amber-700 bg-amber-50 border border-amber-200 rounded-xl p-3"></div>
+                <div id="storeGrid" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+                <p class="text-[11px] text-slate-400">Sample listing for reference. Timings and availability can change, so confirm before you travel, or use Live Maps Search for real-time results.</p>
+            </div>
+        </section>
+
+    </main>
+
+    <script src="js/api.js"></script>
+    <script src="js/directory.js"></script>
+    <script src="js/app.js"></script>
+    <script src="js/i18n.js"></script>
+    <script src="js/appointments.js"></script>
+    <script src="js/prescriptions.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/stores-insurance.js"></script>
+
+    <!-- Appointment Day Popup -->
+    <div id="apptTodayModal" class="fixed inset-0 z-[60] bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 hidden no-print">
+        <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-100 space-y-4">
+            <div class="text-center space-y-2">
+                <div class="w-14 h-14 mx-auto rounded-2xl bg-gradient-to-tr from-teal-700 via-teal-600 to-emerald-500 flex items-center justify-center text-white text-2xl shadow-md">
+                    <i class="fa-solid fa-bell gc-bell"></i>
+                </div>
+                <h3 class="text-xl font-extrabold text-slate-900">Today is your appointment day!</h3>
+                <p class="text-xs text-slate-500">Please reach the facility a little early and carry your DDSSY card and previous reports.</p>
+            </div>
+            <div id="apptTodayList" class="space-y-3 max-h-64 overflow-y-auto"></div>
+            <button onclick="apptDismissToday()" class="w-full py-3 bg-teal-600 hover:bg-teal-700 text-white font-bold text-xs rounded-xl shadow-md transition">Got it, thanks</button>
+        </div>
+    </div>
+
+    <!-- GoaCare additions: more hospitals, clinics and doctors across Goa -->
+    
+    <!-- GoaCare additions: Appointments, Live Crowd, Appointment-Day Popup, Live Medicine List -->
+    
+
+    <!-- GoaCare additions: prescription images + sign-in gate wiring + landing tab -->
+    
+    <!-- GoaCare additions: Medical Stores Nearby + DDSSY / Health & Life Insurance -->
+    
+
+</body>
+</html>

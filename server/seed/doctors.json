@@ -1,0 +1,252 @@
+[
+  {
+    "id": 1,
+    "name": "Dr. Amol Tilve",
+    "spec": "Cardiology",
+    "hospital": "GMC Bambolim",
+    "status": "Available",
+    "room": "OPD 12 (Cardio)",
+    "timings": "09:00 AM - 01:00 PM",
+    "fee": "Free (DDSSY Covered)"
+  },
+  {
+    "id": 2,
+    "name": "Dr. Rajesh Patil",
+    "spec": "Orthopedics",
+    "hospital": "North Goa District Hospital",
+    "status": "Available",
+    "room": "OPD 4",
+    "timings": "09:30 AM - 02:00 PM",
+    "fee": "Free (Govt)"
+  },
+  {
+    "id": 3,
+    "name": "Dr. Sunita Naik",
+    "spec": "Gynecology",
+    "hospital": "South Goa District Hospital",
+    "status": "In Surgery",
+    "room": "OT 2",
+    "timings": "09:00 AM - 01:00 PM",
+    "fee": "Free (Govt)"
+  },
+  {
+    "id": 4,
+    "name": "Dr. Antonio D'Souza",
+    "spec": "General Medicine",
+    "hospital": "Sub-District Hospital Chicalim",
+    "status": "Available",
+    "room": "Casualty Room 1",
+    "timings": "24 Hours On-Call",
+    "fee": "Free (Govt)"
+  },
+  {
+    "id": 5,
+    "name": "Dr. Priya Shenoy",
+    "spec": "Pediatrics",
+    "hospital": "Manipal Hospital",
+    "status": "Available",
+    "room": "OPD 108",
+    "timings": "10:00 AM - 04:00 PM",
+    "fee": "₹500 (DDSSY Package)"
+  },
+  {
+    "id": 6,
+    "name": "Dr. Sameer Fernandes",
+    "spec": "Neurology",
+    "hospital": "Healthway Hospital",
+    "status": "On Call",
+    "room": "Block B, Room 3",
+    "timings": "11:00 AM - 03:00 PM",
+    "fee": "₹600 (Empaneled)"
+  },
+  {
+    "id": 7,
+    "name": "Dr. Kavita Rane",
+    "spec": "Cardiology",
+    "hospital": "Healthway Hospital",
+    "status": "Available",
+    "room": "OPD 204",
+    "timings": "02:00 PM - 06:00 PM",
+    "fee": "₹600 (Empaneled)"
+  },
+  {
+    "id": 8,
+    "name": "Dr. Nilesh Gaonkar",
+    "spec": "Dermatology",
+    "hospital": "GMC Bambolim",
+    "status": "Available",
+    "room": "OPD 7 (Skin)",
+    "timings": "09:00 AM - 01:00 PM",
+    "fee": "Free (DDSSY Covered)"
+  },
+  {
+    "id": 9,
+    "name": "Dr. Leena Gawas",
+    "spec": "Pulmonology",
+    "hospital": "GMC Bambolim",
+    "status": "Available",
+    "room": "OPD 15 (Chest)",
+    "timings": "09:00 AM - 12:30 PM",
+    "fee": "Free (DDSSY Covered)"
+  },
+  {
+    "id": 10,
+    "name": "Dr. Maria Pereira",
+    "spec": "ENT",
+    "hospital": "North Goa District Hospital",
+    "status": "Available",
+    "room": "OPD 6 (ENT)",
+    "timings": "09:30 AM - 01:30 PM",
+    "fee": "Free (Govt)"
+  },
+  {
+    "id": 11,
+    "name": "Dr. Vishal Kamat",
+    "spec": "Ophthalmology",
+    "hospital": "South Goa District Hospital",
+    "status": "In Surgery",
+    "room": "Eye OPD 3",
+    "timings": "09:00 AM - 01:00 PM",
+    "fee": "Free (Govt)"
+  },
+  {
+    "id": 12,
+    "name": "Dr. Shweta Borkar",
+    "spec": "Dentistry",
+    "hospital": "Goa Dental College & Hospital",
+    "status": "Available",
+    "room": "Dental OPD 1",
+    "timings": "09:00 AM - 04:00 PM",
+    "fee": "Free (Govt)"
+  },
+  {
+    "id": 13,
+    "name": "Dr. Rohan Dessai",
+    "spec": "Psychiatry",
+    "hospital": "IPHB Bambolim",
+    "status": "Available",
+    "room": "OPD 2",
+    "timings": "09:30 AM - 01:30 PM",
+    "fee": "Free (Govt)"
+  },
+  {
+    "id": 14,
+    "name": "Dr. Ganesh Prabhu",
+    "spec": "Nephrology",
+    "hospital": "Apollo Victor Hospital",
+    "status": "Available",
+    "room": "OPD 5",
+    "timings": "11:00 AM - 03:00 PM",
+    "fee": "₹700 (Empaneled)"
+  },
+  {
+    "id": 15,
+    "name": "Dr. Ashwin Kerkar",
+    "spec": "Urology",
+    "hospital": "Apollo Victor Hospital",
+    "status": "On Call",
+    "room": "OPD 8",
+    "timings": "02:00 PM - 06:00 PM",
+    "fee": "₹700 (Empaneled)"
+  },
+  {
+    "id": 16,
+    "name": "Dr. Anita Kholkar",
+    "spec": "Oncology",
+    "hospital": "Manipal Hospital",
+    "status": "Available",
+    "room": "OPD 210",
+    "timings": "10:00 AM - 02:00 PM",
+    "fee": "₹800 (DDSSY Package)"
+  },
+  {
+    "id": 17,
+    "name": "Dr. Sneha Kakodkar",
+    "spec": "Endocrinology",
+    "hospital": "Manipal Hospital",
+    "status": "Available",
+    "room": "OPD 112",
+    "timings": "03:00 PM - 06:00 PM",
+    "fee": "₹600 (DDSSY Package)"
+  },
+  {
+    "id": 18,
+    "name": "Dr. Mahesh Shet",
+    "spec": "Gastroenterology",
+    "hospital": "Healthway Hospital",
+    "status": "Available",
+    "room": "OPD 105",
+    "timings": "03:00 PM - 06:00 PM",
+    "fee": "₹650 (Empaneled)"
+  },
+  {
+    "id": 19,
+    "name": "Dr. Joel Rodrigues",
+    "spec": "Orthopedics",
+    "hospital": "Salgaocar Medical Research Centre (SMRC)",
+    "status": "Available",
+    "room": "OPD 3",
+    "timings": "10:00 AM - 04:00 PM",
+    "fee": "₹600 (Empaneled)"
+  },
+  {
+    "id": 20,
+    "name": "Dr. Pooja Volvoikar",
+    "spec": "Pediatrics",
+    "hospital": "Sub-District Hospital Ponda",
+    "status": "Available",
+    "room": "OPD 2",
+    "timings": "09:00 AM - 01:00 PM",
+    "fee": "Free (Govt)"
+  },
+  {
+    "id": 21,
+    "name": "Dr. Clara Menezes",
+    "spec": "Gynecology",
+    "hospital": "CHC Bicholim",
+    "status": "Available",
+    "room": "OPD 3",
+    "timings": "09:00 AM - 01:00 PM",
+    "fee": "Free (Govt)"
+  },
+  {
+    "id": 22,
+    "name": "Dr. Fatima Sequeira",
+    "spec": "General Medicine",
+    "hospital": "CHC Pernem",
+    "status": "Available",
+    "room": "OPD 1",
+    "timings": "09:00 AM - 05:00 PM",
+    "fee": "Free (Govt)"
+  },
+  {
+    "id": 23,
+    "name": "Dr. Prakash Sawant",
+    "spec": "General Medicine",
+    "hospital": "CHC Valpoi",
+    "status": "On Call",
+    "room": "OPD 1",
+    "timings": "09:00 AM - 05:00 PM",
+    "fee": "Free (Govt)"
+  },
+  {
+    "id": 24,
+    "name": "Dr. Sandesh Naik",
+    "spec": "General Medicine",
+    "hospital": "CHC Canacona",
+    "status": "Available",
+    "room": "OPD 1",
+    "timings": "09:00 AM - 05:00 PM",
+    "fee": "Free (Govt)"
+  },
+  {
+    "id": 25,
+    "name": "Dr. Teresa Fernandes",
+    "spec": "General Medicine",
+    "hospital": "Urban Health Centre Panaji",
+    "status": "Available",
+    "room": "Consultation Room 1",
+    "timings": "09:00 AM - 04:00 PM",
+    "fee": "Free (Govt)"
+  }
+]
