@@ -1,3 +1,0 @@
-/* GoaCare: sign-in gate - app stays hidden until the user signs in */
-html.gc-locked header, html.gc-locked main { display: none !important; }
-html.gc-locked #authModal { display: flex !important; background: linear-gradient(135deg, #134e4a 0%, #0f766e 55%, #10b981 100%); backdrop-filter: none; }

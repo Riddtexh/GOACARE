@@ -1,4 +1,0 @@
-/* GoaCare additions: appointments + medicines */
-@media (max-width: 1279px) { .nav-extra .nav-extra-label { display: none; } }
-@keyframes gcBell { 0%,100% { transform: rotate(0); } 20% { transform: rotate(14deg); } 40% { transform: rotate(-12deg); } 60% { transform: rotate(8deg); } 80% { transform: rotate(-6deg); } }
-.gc-bell { animation: gcBell 1.4s ease-in-out infinite; transform-origin: top center; }
