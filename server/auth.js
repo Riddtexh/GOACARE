@@ -30,14 +30,27 @@ const hashToken = token => crypto.createHash('sha256').update(token).digest('hex
 // "+91 98221-44832" and "+919822144832" are the same account; Health IDs are case-insensitive.
 const normaliseLoginId = raw => String(raw || '').trim().replace(/[\s-]+/g, '').toLowerCase();
 
-function validateRegistration({ name, phone, password }) {
+const ROLES = ['patient', 'doctor', 'hospital'];
+
+function validateRegistration({ name, phone, password, role }) {
   const cleanName = String(name || '').trim().replace(/\s+/g, ' ');
   const cleanPhone = String(phone || '').trim();
   const loginId = normaliseLoginId(phone);
   if (cleanName.length < 2 || cleanName.length > 80) return { error: 'Please enter your full name (2-80 characters).' };
   if (!/^\+?[a-z0-9]{4,32}$/.test(loginId)) return { error: 'Enter a valid mobile number or Health ID (4-32 letters/digits).' };
   if (typeof password !== 'string' || password.length < 6 || password.length > 128) return { error: 'Password / PIN must be at least 6 characters.' };
-  return { name: cleanName, phone: cleanPhone.slice(0, 40), loginId };
+  const cleanRole = role == null || role === '' ? 'patient' : String(role);
+  if (!ROLES.includes(cleanRole)) return { error: 'Choose patient, doctor or hospital.' };
+  return { name: cleanName, phone: cleanPhone.slice(0, 40), loginId, role: cleanRole };
 }
 
-module.exports = { SESSION_TTL_MS, hashPassword, verifyPassword, burnTime, newToken, hashToken, normaliseLoginId, validateRegistration };
+// Doctor / hospital accounts can change live data, so creating one needs the staff access code issued by the programme.
+// Set GOACARE_STAFF_CODE in production. The built-in default is for the demo only and is printed when the server starts.
+const DEMO_STAFF_CODE = 'GOA-STAFF-DEMO';
+const staffCode = () => process.env.GOACARE_STAFF_CODE || DEMO_STAFF_CODE;
+function staffCodeOk(given) {
+  const a = Buffer.from(String(given || '')), b = Buffer.from(staffCode());
+  return a.length === b.length && crypto.timingSafeEqual(a, b);
+}
+
+module.exports = { ROLES, DEMO_STAFF_CODE, staffCode, staffCodeOk, SESSION_TTL_MS, hashPassword, verifyPassword, burnTime, newToken, hashToken, normaliseLoginId, validateRegistration };

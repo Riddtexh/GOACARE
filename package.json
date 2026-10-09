@@ -1,17 +1,20 @@
 {
   "name": "goacare",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "description": "GoaCare - Integrated Healthcare & Emergency Portal (client + Node.js back end)",
   "scripts": {
     "start": "node --disable-warning=ExperimentalWarning server/server.js",
-    "test": "node --disable-warning=ExperimentalWarning --test server/test/auth.test.js",
+    "test": "node --disable-warning=ExperimentalWarning --test server/test/auth.test.js server/test/api.test.js",
     "users": "node --disable-warning=ExperimentalWarning server/list-users.js",
+    "make-admin": "node --disable-warning=ExperimentalWarning server/make-admin.js",
     "facilities": "node --disable-warning=ExperimentalWarning server/admin.js facilities",
     "doctors": "node --disable-warning=ExperimentalWarning server/admin.js doctors",
     "beds": "node --disable-warning=ExperimentalWarning server/admin.js beds",
     "doctor-status": "node --disable-warning=ExperimentalWarning server/admin.js doctor-status",
-    "doctor-room": "node --disable-warning=ExperimentalWarning server/admin.js doctor-room"
+    "doctor-room": "node --disable-warning=ExperimentalWarning server/admin.js doctor-room",
+    "demo-load": "node --disable-warning=ExperimentalWarning server/admin.js demo-load",
+    "demo-clear": "node --disable-warning=ExperimentalWarning server/admin.js demo-clear"
   },
   "engines": {
     "node": ">=22.5.0"

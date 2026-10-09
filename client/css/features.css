@@ -2,3 +2,81 @@
 @media (max-width: 1279px) { .nav-extra .nav-extra-label { display: none; } }
 @keyframes gcBell { 0%,100% { transform: rotate(0); } 20% { transform: rotate(14deg); } 40% { transform: rotate(-12deg); } 60% { transform: rotate(8deg); } 80% { transform: rotate(-6deg); } }
 .gc-bell { animation: gcBell 1.4s ease-in-out infinite; transform-origin: top center; }
+
+/* ---- accessibility ---- */
+.skip-link { position: absolute; left: -999px; top: 0; background: #0f172a; color: #fff; padding: .5rem 1rem; z-index: 100; }
+.skip-link:focus { left: 0; }
+:focus-visible { outline: 3px solid #f59e0b; outline-offset: 2px; }
+button:disabled { cursor: not-allowed; }
+html.gc-contrast body { background: #fff; color: #000; }
+html.gc-contrast .text-slate-400, html.gc-contrast .text-slate-500, html.gc-contrast .text-slate-600, html.gc-contrast .text-slate-700 { color: #111 !important; }
+html.gc-contrast .border-slate-100, html.gc-contrast .border-slate-200, html.gc-contrast .border-slate-300 { border-color: #000 !important; }
+html.gc-contrast .bg-teal-600, html.gc-contrast .bg-teal-700 { background-color: #00453d !important; color: #fff !important; }
+html.gc-contrast .text-teal-700, html.gc-contrast .text-teal-800 { color: #00453d !important; }
+html.gc-contrast .bg-slate-50, html.gc-contrast .bg-slate-100 { background-color: #fff !important; }
+html.gc-contrast a, html.gc-contrast .underline { text-decoration: underline; }
+html.gc-contrast .text-emerald-700, html.gc-contrast .text-amber-700, html.gc-contrast .text-orange-700 { color: #000 !important; }
+@media print { .no-print { display: none !important; } }
+
+/* ===== GoaCare visual refresh: tokens, cards, navigation, forms, responsive tables ===== */
+:root { --gc-primary:#0f766e; --gc-primary-dark:#115e59; --gc-ink:#0f172a; --gc-line:#e2e8f0; --gc-bg:#f4f7fa; --gc-radius:14px; --gc-shadow:0 1px 2px rgba(15,23,42,.05), 0 4px 14px rgba(15,23,42,.05); }
+body { background: var(--gc-bg); color: var(--gc-ink); -webkit-font-smoothing: antialiased; }
+main { min-width: 0; }
+img, table { max-width: 100%; }
+main h1 { letter-spacing: -.015em; }
+
+/* page titles with an icon chip */
+.page-title { display: flex; align-items: center; gap: .65rem; }
+.page-icon { display: inline-flex; width: 2.4rem; height: 2.4rem; align-items: center; justify-content: center; border-radius: 12px; background: #ccfbf1; color: var(--gc-primary); font-size: 1rem; flex: none; }
+
+/* cards: one radius, one border, one soft shadow */
+main .bg-white.rounded-2xl, main .bg-white.rounded-3xl, main article { border-color: var(--gc-line); border-radius: var(--gc-radius); box-shadow: var(--gc-shadow); }
+main article { transition: box-shadow .18s ease, transform .18s ease, border-color .18s ease; }
+main article:hover { box-shadow: 0 2px 4px rgba(15,23,42,.06), 0 10px 24px rgba(15,23,42,.08); border-color: #cbd5e1; transform: translateY(-1px); }
+main section > div > h1 + p, main section > div > p.text-xs { max-width: 62ch; }
+
+/* header + navigation: clear active item */
+header { border-bottom-color: var(--gc-line); }
+.nav-btn { border: 1px solid transparent; transition: background-color .15s, color .15s, border-color .15s; white-space: nowrap; }
+.nav-btn:hover { border-color: var(--gc-line); }
+.nav-btn[aria-current="page"] { background: var(--gc-primary) !important; color: #fff !important; box-shadow: 0 2px 8px rgba(15,118,110,.28); }
+#mobileMenu .nav-btn { padding: .75rem .8rem; font-size: .8rem; justify-content: flex-start; }
+#navDesktop { max-width: 100%; }
+
+/* buttons + forms */
+main button, main a[class*="rounded-"] { transition: background-color .15s, box-shadow .15s, transform .08s, border-color .15s; }
+main button:active { transform: scale(.985); }
+main .bg-teal-600 { background-color: var(--gc-primary); }
+main .bg-teal-600:hover, main .hover\:bg-teal-700:hover { background-color: var(--gc-primary-dark); }
+input, select, textarea { transition: border-color .15s, box-shadow .15s; background-color: #fff; }
+input:focus, select:focus, textarea:focus { outline: none; border-color: var(--gc-primary) !important; box-shadow: 0 0 0 3px rgba(15,118,110,.2); }
+label { color: #334155; }
+
+/* notices and states */
+.notice { display: flex; gap: .6rem; align-items: flex-start; border-radius: 12px; padding: .65rem .9rem; font-size: .75rem; font-weight: 600; border: 1px solid; }
+.notice-warn { background: #fffbeb; border-color: #fde68a; color: #92400e; }
+.notice-ok { background: #ecfdf5; border-color: #a7f3d0; color: #065f46; }
+.notice-error { background: #fef2f2; border-color: #fecaca; color: #991b1b; }
+#hospitalGrid > div:only-child, #doctorsList > div:only-child { background: #fff; border: 1px dashed #cbd5e1; border-radius: var(--gc-radius); }
+button:disabled { opacity: .5; }
+
+/* insurance section: two balanced tabs */
+#section-ddssy > div:first-of-type + div, #section-ddssy [id^="ins-tab-"] { font-weight: 700; }
+#section-ddssy [id^="ins-tab-"] { padding-top: .7rem; padding-bottom: .7rem; font-size: .8rem; border: 1px solid transparent; }
+#section-ddssy [id^="ins-pane-"] { max-width: 48rem; margin-left: auto; margin-right: auto; }
+
+/* wide tables become labelled cards on small screens (no information lost) */
+@media (max-width: 640px) {
+  .resp-table, .resp-table tbody, .resp-table tr, .resp-table td { display: block; width: 100%; }
+  .resp-table thead { position: absolute; left: -9999px; }
+  .resp-table tr { border: 1px solid var(--gc-line); border-radius: 12px; margin: .6rem; padding: .35rem .2rem; width: auto; background: #fff; }
+  .resp-table td { display: flex; justify-content: space-between; gap: 1rem; padding: .4rem .7rem !important; border: 0 !important; text-align: right; }
+  .resp-table td::before { content: attr(data-label); font-weight: 700; color: #64748b; text-align: left; flex: none; }
+  .resp-table td[colspan] { display: block; text-align: center; }
+  .resp-table td[colspan]::before { content: none; }
+  main { padding: 1rem; }
+  .page-icon { width: 2rem; height: 2rem; }
+}
+@media (min-width: 641px) and (max-width: 1023px) { #hospitalGrid, #doctorsList { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+html.gc-contrast main article, html.gc-contrast main .bg-white { box-shadow: none; border-color: #000; }

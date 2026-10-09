@@ -7,7 +7,8 @@
     "status": "Available",
     "room": "OPD 12 (Cardio)",
     "timings": "09:00 AM - 01:00 PM",
-    "fee": "Free (DDSSY Covered)"
+    "fee": "Free (DDSSY Covered)",
+    "facilityId": "gmc-bambolim"
   },
   {
     "id": 2,
@@ -17,7 +18,8 @@
     "status": "Available",
     "room": "OPD 4",
     "timings": "09:30 AM - 02:00 PM",
-    "fee": "Free (Govt)"
+    "fee": "Free (Govt)",
+    "facilityId": "asilo-mapusa"
   },
   {
     "id": 3,
@@ -27,7 +29,8 @@
     "status": "In Surgery",
     "room": "OT 2",
     "timings": "09:00 AM - 01:00 PM",
-    "fee": "Free (Govt)"
+    "fee": "Free (Govt)",
+    "facilityId": "hospicio-margao"
   },
   {
     "id": 4,
@@ -37,7 +40,8 @@
     "status": "Available",
     "room": "Casualty Room 1",
     "timings": "24 Hours On-Call",
-    "fee": "Free (Govt)"
+    "fee": "Free (Govt)",
+    "facilityId": "sdh-chicalim"
   },
   {
     "id": 5,
@@ -47,7 +51,8 @@
     "status": "Available",
     "room": "OPD 108",
     "timings": "10:00 AM - 04:00 PM",
-    "fee": "₹500 (DDSSY Package)"
+    "fee": "₹500 (DDSSY Package)",
+    "facilityId": "manipal-dona-paula"
   },
   {
     "id": 6,
@@ -57,7 +62,8 @@
     "status": "On Call",
     "room": "Block B, Room 3",
     "timings": "11:00 AM - 03:00 PM",
-    "fee": "₹600 (Empaneled)"
+    "fee": "₹600 (Empaneled)",
+    "facilityId": "healthway-old-goa"
   },
   {
     "id": 7,
@@ -67,7 +73,8 @@
     "status": "Available",
     "room": "OPD 204",
     "timings": "02:00 PM - 06:00 PM",
-    "fee": "₹600 (Empaneled)"
+    "fee": "₹600 (Empaneled)",
+    "facilityId": "healthway-old-goa"
   },
   {
     "id": 8,
@@ -77,7 +84,8 @@
     "status": "Available",
     "room": "OPD 7 (Skin)",
     "timings": "09:00 AM - 01:00 PM",
-    "fee": "Free (DDSSY Covered)"
+    "fee": "Free (DDSSY Covered)",
+    "facilityId": "gmc-bambolim"
   },
   {
     "id": 9,
@@ -87,7 +95,8 @@
     "status": "Available",
     "room": "OPD 15 (Chest)",
     "timings": "09:00 AM - 12:30 PM",
-    "fee": "Free (DDSSY Covered)"
+    "fee": "Free (DDSSY Covered)",
+    "facilityId": "gmc-bambolim"
   },
   {
     "id": 10,
@@ -97,7 +106,8 @@
     "status": "Available",
     "room": "OPD 6 (ENT)",
     "timings": "09:30 AM - 01:30 PM",
-    "fee": "Free (Govt)"
+    "fee": "Free (Govt)",
+    "facilityId": "asilo-mapusa"
   },
   {
     "id": 11,
@@ -107,7 +117,8 @@
     "status": "In Surgery",
     "room": "Eye OPD 3",
     "timings": "09:00 AM - 01:00 PM",
-    "fee": "Free (Govt)"
+    "fee": "Free (Govt)",
+    "facilityId": "hospicio-margao"
   },
   {
     "id": 12,
@@ -117,7 +128,8 @@
     "status": "Available",
     "room": "Dental OPD 1",
     "timings": "09:00 AM - 04:00 PM",
-    "fee": "Free (Govt)"
+    "fee": "Free (Govt)",
+    "facilityId": "gdch-bambolim"
   },
   {
     "id": 13,
@@ -127,7 +139,8 @@
     "status": "Available",
     "room": "OPD 2",
     "timings": "09:30 AM - 01:30 PM",
-    "fee": "Free (Govt)"
+    "fee": "Free (Govt)",
+    "facilityId": "iphb-bambolim"
   },
   {
     "id": 14,
@@ -137,7 +150,8 @@
     "status": "Available",
     "room": "OPD 5",
     "timings": "11:00 AM - 03:00 PM",
-    "fee": "₹700 (Empaneled)"
+    "fee": "₹700 (Empaneled)",
+    "facilityId": "apollo-victor-margao"
   },
   {
     "id": 15,
@@ -147,7 +161,8 @@
     "status": "On Call",
     "room": "OPD 8",
     "timings": "02:00 PM - 06:00 PM",
-    "fee": "₹700 (Empaneled)"
+    "fee": "₹700 (Empaneled)",
+    "facilityId": "apollo-victor-margao"
   },
   {
     "id": 16,
@@ -157,7 +172,8 @@
     "status": "Available",
     "room": "OPD 210",
     "timings": "10:00 AM - 02:00 PM",
-    "fee": "₹800 (DDSSY Package)"
+    "fee": "₹800 (DDSSY Package)",
+    "facilityId": "manipal-dona-paula"
   },
   {
     "id": 17,
@@ -167,7 +183,8 @@
     "status": "Available",
     "room": "OPD 112",
     "timings": "03:00 PM - 06:00 PM",
-    "fee": "₹600 (DDSSY Package)"
+    "fee": "₹600 (DDSSY Package)",
+    "facilityId": "manipal-dona-paula"
   },
   {
     "id": 18,
@@ -177,7 +194,8 @@
     "status": "Available",
     "room": "OPD 105",
     "timings": "03:00 PM - 06:00 PM",
-    "fee": "₹650 (Empaneled)"
+    "fee": "₹650 (Empaneled)",
+    "facilityId": "healthway-old-goa"
   },
   {
     "id": 19,
@@ -187,7 +205,8 @@
     "status": "Available",
     "room": "OPD 3",
     "timings": "10:00 AM - 04:00 PM",
-    "fee": "₹600 (Empaneled)"
+    "fee": "₹600 (Empaneled)",
+    "facilityId": "smrc-vasco"
   },
   {
     "id": 20,
@@ -197,7 +216,8 @@
     "status": "Available",
     "room": "OPD 2",
     "timings": "09:00 AM - 01:00 PM",
-    "fee": "Free (Govt)"
+    "fee": "Free (Govt)",
+    "facilityId": "sdh-ponda"
   },
   {
     "id": 21,
@@ -207,7 +227,8 @@
     "status": "Available",
     "room": "OPD 3",
     "timings": "09:00 AM - 01:00 PM",
-    "fee": "Free (Govt)"
+    "fee": "Free (Govt)",
+    "facilityId": "chc-bicholim"
   },
   {
     "id": 22,
@@ -217,7 +238,8 @@
     "status": "Available",
     "room": "OPD 1",
     "timings": "09:00 AM - 05:00 PM",
-    "fee": "Free (Govt)"
+    "fee": "Free (Govt)",
+    "facilityId": "chc-pernem"
   },
   {
     "id": 23,
@@ -227,7 +249,8 @@
     "status": "On Call",
     "room": "OPD 1",
     "timings": "09:00 AM - 05:00 PM",
-    "fee": "Free (Govt)"
+    "fee": "Free (Govt)",
+    "facilityId": "chc-valpoi"
   },
   {
     "id": 24,
@@ -237,7 +260,8 @@
     "status": "Available",
     "room": "OPD 1",
     "timings": "09:00 AM - 05:00 PM",
-    "fee": "Free (Govt)"
+    "fee": "Free (Govt)",
+    "facilityId": "chc-canacona"
   },
   {
     "id": 25,
@@ -247,6 +271,7 @@
     "status": "Available",
     "room": "Consultation Room 1",
     "timings": "09:00 AM - 04:00 PM",
-    "fee": "Free (Govt)"
+    "fee": "Free (Govt)",
+    "facilityId": "uhc-panaji"
   }
 ]

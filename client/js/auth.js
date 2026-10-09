@@ -1,109 +1,71 @@
-// Sign-in flow: registration / login / logout against the server, plus the "locked until signed in" screen.
+// Sign in / register (patient, doctor or hospital), session restore, guest mode, sign out.
 (function () {
-    const byId = id => document.getElementById(id);
-    const root = document.documentElement;
-    const SESSION_KEY = 'gcSessionAuth';          // sessionStorage: 'user' | 'guest' (only used to avoid a lock-screen flash)
-    const OWNER_KEY = 'goaCareProfileOwner';      // localStorage: id of the account whose data is stored in this browser
+    let mode = 'login';
+    const show = (id, on) => byId(id).classList.toggle('hidden', !on);
+    const err = msg => { const e = byId('authError'); e.textContent = msg || ''; show('authError', !!msg); };
 
-    // ---------- lock / unlock ----------
-    function unlock(mode) {
-        try { sessionStorage.setItem(SESSION_KEY, mode); } catch (e) {}
-        root.classList.remove('gc-locked');
-        byId('authModal').classList.add('hidden');
-        window.switchTab('appointments');
-        window.scrollTo(0, 0);
+    window.openAuth = function () { if (GC.user) return switchTab('profile'); byId('authModal').classList.remove('hidden'); byId('authPhone').focus(); };
+    function setMode(m) {
+        mode = m; err('');
+        show('authNameWrap', m === 'register'); show('authRoleWrap', m === 'register'); if (m === 'login') show('authStaffWrap', false); else authRoleChange();
+        byId('authSubmit').textContent = m === 'login' ? 'Sign in' : 'Create account';
+        byId('authToggle').textContent = m === 'login' ? 'New here? Create an account' : 'Have an account? Sign in';
+        byId('authPassword').autocomplete = m === 'login' ? 'current-password' : 'new-password';
     }
-    function lock() {
-        try { sessionStorage.removeItem(SESSION_KEY); } catch (e) {}
-        root.classList.add('gc-locked');
+    window.authToggleMode = () => setMode(mode === 'login' ? 'register' : 'login');
+    window.authRoleChange = function () {
+        const role = byId('authRole').value;
+        show('authStaffWrap', role !== 'patient'); show('authFacilityWrap', role === 'hospital'); show('authDoctorWrap', role === 'doctor');
+        if (role !== 'patient') fillStaffLists();
+    };
+    async function fillStaffLists() {
+        try {
+            if (!facilitiesData.length) { const f = await GoaAPI.facilities(), d = await GoaAPI.doctors(); f.facilities.forEach(x => facilitiesData.push(x)); d.doctors.forEach(x => doctorsData.push(x)); }
+            byId('authFacility').innerHTML = facilitiesData.map(f => `<option value="${esc(f.id)}">${esc(f.name)}</option>`).join('');
+            byId('authDoctor').innerHTML = doctorsData.map(d => `<option value="${d.id}">${esc(d.name)} · ${esc(d.hospital)}</option>`).join('');
+        } catch (e) { err(e.message); }
+    }
+    window.authSubmit = async function () {
+        err('');
+        const phone = byId('authPhone').value.trim(), password = byId('authPassword').value;
+        const btn = byId('authSubmit'); btn.disabled = true;
+        try {
+            let r;
+            if (mode === 'login') r = await GoaAPI.login(phone, password);
+            else {
+                const role = byId('authRole').value;
+                r = await GoaAPI.register({ name: byId('authName').value, phone, password, role, facilityId: role === 'hospital' ? byId('authFacility').value : undefined, doctorId: role === 'doctor' ? byId('authDoctor').value : undefined, staffCode: byId('authStaffCode').value });
+            }
+            await signedIn(r.user, true);
+        } catch (e) { err(e.message); } finally { btn.disabled = false; }
+    };
+    window.continueGuest = function () { try { sessionStorage.setItem('gcGuest', '1'); } catch (e) { /* ignore */ } byId('authModal').classList.add('hidden'); };
+
+    async function signedIn(user, fresh) {
+        GC.user = user; byId('authModal').classList.add('hidden');
+        byId('userName').textContent = user.name; byId('userRole').textContent = user.role === 'patient' ? 'Patient' : user.role === 'doctor' ? 'Doctor' : user.role === 'admin' ? 'Administrator' : 'Hospital staff';
+        byId('userInitials').textContent = user.name.split(/\s+/).map(w => w[0]).join('').slice(0, 2).toUpperCase();
+        byId('logoutBtn').classList.remove('hidden');
+        try { Object.assign(GC.data, await GoaAPI.myData()); } catch (e) { /* offline */ }
+        renderNav(); renderProfile(); renderRecords(); renderPrescriptions(); renderAppts();
+        document.dispatchEvent(new CustomEvent('gc:user'));
+        if (user.role === 'admin') { resetStaff(); if (window.resetAdmin) resetAdmin(); switchTab('admin'); }
+        else if (user.role !== 'patient') { resetStaff(); switchTab('staff'); }
+        else { switchTab(currentTab() === 'staff' || currentTab() === 'admin' ? 'dashboard' : currentTab()); if (!user.consentAt && fresh) byId('consentModal').classList.remove('hidden'); else showTodayAppointments(); }
+    }
+    window.afterSignOut = function () {
+        GC.user = null; GC.data = { profile: {}, records: [], prescriptions: [], appointments: [], claims: [] }; resetStaff(); if (window.resetAdmin) resetAdmin();
+        byId('userName').textContent = 'Guest'; byId('userRole').textContent = 'Sign in'; byId('userInitials').textContent = 'GC'; byId('logoutBtn').classList.add('hidden');
+        setMode('login'); byId('authPassword').value = '';
+        renderNav(); renderProfile(); renderRecords(); renderPrescriptions(); renderAppts(); switchTab('dashboard');
         byId('authModal').classList.remove('hidden');
-        window.switchTab('appointments');
-    }
-
-    // ---------- per-account browser data ----------
-    // Profile, records, appointments and prescriptions are still kept in this browser (not on the server yet).
-    // When a different account signs in, start it with a clean slate so it never sees the previous account's data.
-    function claimBrowserData(user) {
-        if (localStorage.getItem(OWNER_KEY) === String(user.id)) return false;
-        localStorage.setItem(OWNER_KEY, String(user.id));
-        localStorage.setItem('goaCareUserProfile', JSON.stringify({
-            name: user.name, phone: user.phone, emergencyContact: '', bloodGroup: '', ddssyCard: '', address: '', allergies: '', conditions: ''
-        }));
-        localStorage.setItem('goaCareMedicalRecords', '[]');
-        localStorage.setItem('goaCareAppointments', '[]');
-        localStorage.setItem('goaCarePrescriptions', '[]');
-        return true;   // page must reload so every module re-reads localStorage
-    }
-
-    function signedIn(user) {
-        if (claimBrowserData(user)) {
-            try { sessionStorage.setItem(SESSION_KEY, 'user'); } catch (e) {}
-            location.reload();
-            return;
-        }
-        currentUserProfile.name = user.name;
-        currentUserProfile.phone = user.phone;
-        saveProfileToStorage();
-        loadProfileToUI();
-        unlock('user');
-    }
-
-    // ---------- form handlers (called from index.html) ----------
-    function showError(msg) {
-        const el = byId('authError');
-        el.innerText = msg || '';
-        el.classList.toggle('hidden', !msg);
-    }
-
-    window.handleAuthSubmit = async function (e) {
-        e.preventDefault();
-        showError('');
-        const phone = byId('authPhone').value.trim();
-        const password = byId('authPassword').value;
-        const name = byId('authName').value.trim();
-        const btn = byId('authSubmitBtn');
-        const label = btn.innerText;
-
-        if (authMode === 'signup') {
-            if (name.length < 2) return showError('Please enter your full name.');
-            if (password.length < 6) return showError('Password / PIN must be at least 6 characters.');
-        }
-
-        btn.disabled = true; btn.innerText = 'Please wait...';
-        try {
-            const { user } = authMode === 'signup'
-                ? await GoaAPI.register(name, phone, password)
-                : await GoaAPI.login(phone, password);
-            byId('authPassword').value = '';
-            signedIn(user);
-        } catch (err) {
-            showError(err.message);
-        } finally {
-            btn.disabled = false; btn.innerText = label;
-        }
     };
+    window.logout = async function () { try { await GoaAPI.logout(); } catch (e) { /* ignore */ } afterSignOut(); };
 
-    window.continueAsGuest = function () { showError(''); unlock('guest'); };
-
-    window.logoutUser = async function () {
-        try { await GoaAPI.logout(); } catch (e) { /* even if the server is unreachable, lock the screen */ }
-        const f = byId('authForm'); if (f && f.reset) f.reset();
-        showError('');
-        lock();
-        window.scrollTo(0, 0);
-    };
-
-    // ---------- on page load: restore the session from the server cookie ----------
-    window.addEventListener('load', async function () {
-        let mode = null;
-        try { mode = sessionStorage.getItem(SESSION_KEY); } catch (e) {}
-        if (mode === 'guest') { unlock('guest'); return; }
-        try {
-            const { user } = await GoaAPI.me();
-            signedIn(user);
-        } catch (err) {
-            lock();
-            if (err.network) showError(err.message);
-        }
+    document.addEventListener('DOMContentLoaded', async () => {
+        setMode('login');
+        byId('authPassword').addEventListener('keydown', e => { if (e.key === 'Enter') authSubmit(); });
+        try { const { user } = await GoaAPI.me(); await signedIn(user, false); }
+        catch (e) { let guest = false; try { guest = sessionStorage.getItem('gcGuest') === '1'; } catch (x) { /* ignore */ } if (guest || e.network) byId('authModal').classList.add('hidden'); }
     });
 })();

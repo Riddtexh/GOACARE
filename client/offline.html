@@ -1,0 +1,8 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>GoaCare - offline</title>
+<style>body{font-family:system-ui,sans-serif;margin:0;background:#f8fafc;color:#0f172a}main{max-width:560px;margin:0 auto;padding:20px}.b{display:block;text-align:center;padding:18px;border-radius:14px;font-weight:800;font-size:20px;text-decoration:none;margin:10px 0}.r{background:#e11d48;color:#fff}.s{background:#fff;border:2px solid #e11d48;color:#be123c}li{margin:6px 0}small{color:#475569}</style></head>
+<body><main><h1>GoaCare is offline</h1><p>No internet connection. These work without it:</p>
+<a class="b r" href="tel:108">Call 108 Ambulance</a><a class="b s" href="tel:104">Call 104 Health Helpline</a>
+<p><strong>Heart attack, stroke, severe breathing trouble:</strong> call 108 now. Do not drive yourself.</p>
+<h2>Last known hospitals</h2><ul id="l"></ul><small id="n"></small><p><a href="/">Try again</a></p></main>
+<script>try{var d=JSON.parse(localStorage.getItem('gcLastFacilities')),l=document.getElementById('l');d.facilities.filter(function(f){return f.phone}).forEach(function(f){var li=document.createElement('li'),a=document.createElement('a');a.href='tel:'+f.phone.replace(/[^+\d]/g,'');a.textContent=f.phone;li.appendChild(document.createTextNode(f.name+': '));li.appendChild(a);l.appendChild(li)});document.getElementById('n').textContent='Saved '+new Date(d.at).toLocaleString('en-IN')+'. Only hospitals with a verified phone number are listed.'}catch(e){document.getElementById('n').textContent='No hospital list saved yet. Open GoaCare once with internet.'}</script></body></html>

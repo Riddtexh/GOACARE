@@ -11,7 +11,7 @@ if (!fs.existsSync(file)) {
 }
 const db = new DatabaseSync(file, { readOnly: true });
 const rows = db.prepare(`
-  SELECT u.id, u.name, u.phone AS "phone / health id", u.created_at AS registered,
+  SELECT u.id, u.name, u.role, u.phone AS "phone / health id", u.consent_at AS consent, u.created_at AS registered,
          (SELECT COUNT(*) FROM sessions s WHERE s.user_id = u.id AND s.expires_at > ?) AS "active sessions"
   FROM users u ORDER BY u.id`).all(Date.now());
 if (!rows.length) console.log('No users registered yet.');

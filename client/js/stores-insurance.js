@@ -58,7 +58,7 @@
 
     // ---------- DDSSY / Insurance tabs ----------
     window.ddssyTab = function (t) {
-        ['ddssy', 'health', 'life'].forEach(k => {
+        ['ddssy', 'health'].forEach(k => {
             byId('ins-pane-' + k).classList.toggle('hidden', k !== t);
             const b = byId('ins-tab-' + k);
             b.classList.toggle('bg-teal-600', k === t); b.classList.toggle('text-white', k === t);
@@ -77,14 +77,4 @@
             <div>About ${inr(p / 12)} per month for a Rs ${sum} Lakh cover.</div>
             <div>${byId('hiTop').checked ? 'A super top-up works best alongside your DDSSY cover or a base policy.' : 'DDSSY covers eligible Goa residents at empaneled hospitals; private insurance adds choice of hospital and higher limits.'}</div>`;
     };
-    window.calcLifeIns = function () {
-        const age = Math.min(60, Math.max(18, +byId('liAge').value || 30)), cover = +byId('liCover').value;
-        const base = age <= 25 ? 8000 : age <= 30 ? 10500 : age <= 35 ? 13500 : age <= 40 ? 19000 : age <= 45 ? 29000 : age <= 50 ? 45000 : 72000;
-        const p = base * cover * (+byId('liGender').value) * (+byId('liSmoke').value);
-        const inc = +byId('liIncome').value;
-        const r = byId('liResult'); r.classList.remove('hidden');
-        r.innerHTML = `<div class="font-bold text-sm">Estimated term premium: ${inr(p * 0.85)} to ${inr(p * 1.15)} per year</div>
-            <div>About ${inr(p / 12)} per month for Rs ${cover >= 1 ? cover + ' Crore' : cover * 100 + ' Lakh'} cover.</div>
-            ${inc > 0 ? `<div>Suggested cover for your income: ${inr(inc * 10)} to ${inr(inc * 15)}.</div>` : ''}`;
-    };
-})();
+    })();
