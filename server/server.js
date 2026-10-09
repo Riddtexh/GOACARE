@@ -72,7 +72,8 @@ function createServer() {
 
 if (require.main === module) {
   const port = Number(process.env.PORT) || 3000;
-  const host = process.env.HOST || '127.0.0.1';
+  // Hosting platforms (Render, Railway, Fly...) set PORT and need the server reachable from outside, so listen on all interfaces there.
+  const host = process.env.HOST || (process.env.PORT ? '0.0.0.0' : '127.0.0.1');
   db.purgeExpiredSessions();
   setInterval(() => db.purgeExpiredSessions(), 60 * 60 * 1000).unref();
   createServer().listen(port, host, () => {
