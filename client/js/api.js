@@ -25,6 +25,9 @@
     const qs = o => { const p = new URLSearchParams(); Object.entries(o).forEach(([k, v]) => { if (v != null && v !== '') p.set(k, v); }); const s = p.toString(); return s ? '?' + s : ''; };
 
     window.GoaAPI = {
+        call: (method, path, body) => request(method, path, body),   // generic: GoaAPI.call('GET', '/staff/costs')
+        qs,
+        publicOperations: () => request('GET', '/public/operations'),
         // accounts
         register: body => request('POST', '/auth/register', body),
         login: (phone, password) => request('POST', '/auth/login', { phone, password }),
@@ -42,12 +45,28 @@
         // staff
         setBeds: (facilityId, beds) => request('PUT', '/facilities/' + encodeURIComponent(facilityId) + '/beds', beds),
         setDoctor: (id, patch) => request('PUT', '/doctors/' + id + '/status', patch),
-        staffAppointments: () => request('GET', '/staff/appointments'),
+        staffAppointments: params => request('GET', '/staff/appointments' + qs(params || {})),
         setAppointmentStatus: (id, status) => request('PUT', '/appointments/' + id + '/status', { status }),
         // admin (admin accounts only)
-        adminUsers: q => request('GET', '/admin/users' + qs({ q })),
+        adminUsers: (q, role) => request('GET', '/admin/users' + qs({ q, role })),
         adminUser: id => request('GET', '/admin/users/' + id),
         adminAudit: () => request('GET', '/admin/audit'),
+        // staff / doctor / admin workspace (staff.html). facilityId is only meaningful for administrators; the server pins everyone else to their own hospital.
+        staffOverview: fid => request('GET', '/staff/overview' + qs({ facilityId: fid })),
+        staffDoctors: fid => request('GET', '/staff/doctors' + qs({ facilityId: fid })),
+        staffHospital: fid => request('GET', '/staff/hospital' + qs({ facilityId: fid })),
+        saveHospital: body => request('PUT', '/staff/hospital', body),
+        staffActivity: (fid, limit, offset) => request('GET', '/staff/activity' + qs({ facilityId: fid, limit, offset })),
+        units: fid => request('GET', '/staff/units' + qs({ facilityId: fid })),
+        createUnit: body => request('POST', '/staff/units', body),
+        updateUnit: (id, body) => request('PUT', '/staff/units/' + id, body),
+        setUnitActive: (id, active) => request('PUT', '/staff/units/' + id + '/active', { active }),
+        setUnitDoctors: (id, doctorIds) => request('PUT', '/staff/units/' + id + '/doctors', { doctorIds }),
+        adminOverview: () => request('GET', '/admin/overview'),
+        adminFacilities: () => request('GET', '/admin/facilities'),
+        verifyFacility: id => request('PUT', '/admin/facilities/' + encodeURIComponent(id) + '/verify', {}),
+        verifyUnit: id => request('PUT', '/admin/units/' + id + '/verify', {}),
+        adminActivity: params => request('GET', '/admin/activity' + qs(params || {})),
         // my data
         myData: () => request('GET', '/me/data'),
         consent: () => request('POST', '/me/consent', { accept: true }),

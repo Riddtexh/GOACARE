@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GoaCare Staff Workspace</title>
+  <meta name="theme-color" content="#0f766e">
+  <meta name="robots" content="noindex">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="css/staff.css">
+</head>
+<body class="staff">
+<a href="#/" class="skip" onclick="event.preventDefault();document.getElementById('page').focus()">Skip to content</a>
+<div id="boot" class="boot" role="status"><div class="spin" aria-hidden="true"></div><div>Opening your workspace…</div></div>
+<div id="shell" class="shell hidden">
+  <aside class="side" id="side" aria-label="Workspace navigation">
+    <div class="brand"><span class="brand-mark"><i class="fa-solid fa-heart-pulse" aria-hidden="true"></i></span><span>GoaCare<small id="roleLabel">Staff workspace</small></span></div>
+    <nav class="nav" id="nav" aria-label="Main"></nav>
+    <div class="side-foot">
+      <button type="button" id="collapseBtn" aria-pressed="false"><i class="fa-solid fa-angles-left" aria-hidden="true"></i><span>Collapse menu</span></button>
+    </div>
+  </aside>
+  <div class="scrim" id="scrim"></div>
+  <div class="main">
+    <header class="top">
+      <button type="button" class="icon-btn" id="menuBtn" aria-label="Open menu" aria-controls="side"><i class="fa-solid fa-bars" aria-hidden="true"></i></button>
+      <div class="scope" id="scope"></div>
+      <button type="button" class="icon-btn mobile-search" id="searchBtn" aria-label="Search"><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i></button>
+      <div class="search" id="searchBox" role="search">
+        <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+        <label for="searchInput" class="sr-only">Search doctors, units and appointments</label>
+        <input id="searchInput" class="in" type="search" placeholder="Search doctors, units, appointments" autocomplete="off" aria-controls="searchPop" aria-expanded="false">
+        <div class="pop hidden" id="searchPop" role="listbox"></div>
+      </div>
+      <div class="anchor"><button type="button" class="icon-btn" id="bellBtn" aria-label="Notifications" aria-haspopup="true" aria-expanded="false"><i class="fa-regular fa-bell" aria-hidden="true"></i><span class="pip hidden" id="bellPip">0</span></button><div class="pop hidden" id="bellPop"></div></div>
+      <div class="anchor"><button type="button" class="avatar" id="userBtn" aria-label="Account menu" aria-haspopup="true" aria-expanded="false">GC</button><div class="pop hidden" id="userPop"></div></div>
+    </header>
+    <main id="page" class="page" tabindex="-1"></main>
+  </div>
+</div>
+<div class="toasts" id="toasts" role="status" aria-live="polite"></div>
+<script src="js/api.js"></script>
+<script src="js/staff-ui.js"></script>
+<script src="js/staff-pages.js"></script>
+<script src="js/staff-ops.js"></script>
+<script src="js/staff-admin.js"></script>
+<script src="js/staff-gov.js"></script>
+<script src="js/staff-boot.js"></script>
+</body>
+</html>

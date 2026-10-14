@@ -95,7 +95,8 @@ module.exports = function (router) {
     let p;
     if (key.startsWith('d:')) {
       const d = db.getDoctor(Number(key.slice(2)));
-      if (!d) throw httpError(404, 'Unknown doctor.');
+      if (!d || d.archived) throw httpError(404, 'Unknown doctor.');
+      if (!d.acceptsAppointments) throw httpError(409, 'This doctor is not taking appointments right now.');
       p = { type: 'doctor', name: d.name, place: d.hospital + ' · ' + d.room, mapQuery: d.hospital + ', Goa', facilityId: d.facilityId, key: 'd:' + d.id };
     } else if (key.startsWith('h:')) {
       const f = db.getFacility(key.slice(2));

@@ -4,6 +4,10 @@ const http = require('http');
 const fs = require('fs');
 const path = require('path');
 const db = require('./db');
+require('./ops-db');   // creates the operational tables (wards, crowd, costs, stores, assets)
+require('./gov-db');   // versioned migrations: verification, invitations, approvals, inventory, security
+const audit = require('./lib/audit');
+const crypto = require('crypto');
 const auth = require('./auth');
 const metrics = require('./lib/metrics');
 const { createRouter } = require('./lib/router');
@@ -17,27 +21,45 @@ const MIME = {
 };
 
 const router = createRouter();
-['auth', 'directory', 'staff', 'me', 'admin'].forEach(name => require('./routes/' + name)(router));
+['auth', 'directory', 'staff', 'dashboard', 'units', 'ops', 'me', 'admin', 'gov', 'audit', 'inventory', 'settings', 'reports', 'chat'].forEach(name => require('./routes/' + name)(router));
 
 function currentUser(req) {
   const token = parseCookies(req)[COOKIE];
   return token ? db.findUserBySession(auth.hashToken(token)) : null;
 }
 
+// Denied / cross-hospital attempts by a signed-in user are written to the audit chain (throttled so a script cannot flood it).
+const recentDenials = new Map();
+function recordDenied(user, req, url, e) {
+  const action = e.audit || 'unauthorized_action', key = `${user.id}|${action}|${req.method} ${url.pathname}`, now = Date.now();
+  if (recentDenials.size > 2000) recentDenials.clear();
+  if (now - (recentDenials.get(key) || 0) < 10000) return;
+  recentDenials.set(key, now);
+  audit.recordFailure(user, { action, resourceType: 'request', resourceId: `${req.method} ${url.pathname}`, outcome: 'blocked', reason: e.error, detail: { status: e.status } });
+}
+
 async function handleApi(req, res, url) {
   const started = process.hrtime.bigint();
   const found = router.match(req.method, url.pathname);
-  try {
-    if (!found) return fail(res, router.routes.some(r => r.rx.test(url.pathname)) ? 405 : 404, 'Not found.');
-    const ctx = { req, res, params: found.params, query: url.searchParams, user: currentUser(req), body: () => readJson(req) };
-    await found.handler(ctx);
-  } catch (e) {
-    if (e && e.status) return fail(res, e.status, e.error, e.extra);
-    console.error(e);
-    fail(res, 500, 'Server error.');
-  } finally {
-    if (url.pathname === '/api/facilities' || url.pathname === '/api/doctors') metrics.record(Number(process.hrtime.bigint() - started) / 1e6);
-  }
+  const idem = String(req.headers['idempotency-key'] || '').slice(0, 80) || null;
+  return audit.withContext({ requestId: crypto.randomUUID(), idem, ip: String(req.socket.remoteAddress || ''), ua: String(req.headers['user-agent'] || '') }, async () => {
+    let user = null;
+    try {
+      if (!found) return fail(res, router.routes.some(r => r.rx.test(url.pathname)) ? 405 : 404, 'Not found.');
+      user = currentUser(req);
+      const ctx = { req, res, params: found.params, query: url.searchParams, user, body: (max) => readJson(req, max) };
+      await found.handler(ctx);
+    } catch (e) {
+      if (e && e.status) {
+        if (user && (e.status === 403 || e.audit)) recordDenied(user, req, url, e);
+        return fail(res, e.status, e.error, e.extra);
+      }
+      console.error(e);
+      fail(res, 500, 'Server error.');
+    } finally {
+      if (url.pathname === '/api/facilities' || url.pathname === '/api/doctors') metrics.record(Number(process.hrtime.bigint() - started) / 1e6);
+    }
+  });
 }
 
 function serveStatic(req, res, pathname) {
@@ -76,9 +98,13 @@ if (require.main === module) {
   const host = process.env.HOST || (process.env.PORT ? '0.0.0.0' : '127.0.0.1');
   db.purgeExpiredSessions();
   setInterval(() => db.purgeExpiredSessions(), 60 * 60 * 1000).unref();
+  setInterval(() => { try { audit.checkpoint(null); } catch (e) { console.error('audit checkpoint failed', e.message); } }, 60 * 60 * 1000).unref();
   createServer().listen(port, host, () => {
     console.log(`GoaCare running at http://${host === '0.0.0.0' ? 'localhost' : host}:${port}`);
-    if (!process.env.GOACARE_STAFF_CODE) console.log(`Staff sign-up code (DEMO default): ${auth.DEMO_STAFF_CODE}   <- set GOACARE_STAFF_CODE before any real deployment`);
+    if (!process.env.GOACARE_STAFF_CODE) {
+      if (process.env.NODE_ENV === 'production') console.log('Staff sign-up is CLOSED: set GOACARE_STAFF_CODE to allow doctor / hospital accounts.');
+      else console.log(`Staff sign-up code (DEMO default): ${auth.DEMO_STAFF_CODE}   <- set GOACARE_STAFF_CODE before any real deployment`);
+    }
   });
 }
 

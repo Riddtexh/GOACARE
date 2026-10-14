@@ -16,7 +16,7 @@
             loading: 'Loading live hospital data from the server...',
             'ct_Public': 'Public', 'ct_Private': 'Private', 'ct_Super Specialty': 'Super Specialty', 'd_North Goa': 'North Goa', 'd_South Goa': 'South Goa',
             liveBeds: 'Bed availability', updated: 'Updated', bICU: 'ICU', bOxygen: 'Oxygen', bGeneral: 'General',
-            staffVerified: 'Updated by hospital staff', staffUnverified: 'Not yet confirmed by the hospital. Numbers may be old.',
+            staffReport: 'Staff report', staffReportOutdated: 'outdated', staffReportNote: 'Reported by hospital staff, not a live feed.', staffVerified: 'Updated by hospital staff', staffUnverified: 'Not yet confirmed by the hospital. Numbers may be old.',
             mapRoute: 'Google Maps Route', callHospital: 'Call hospital', phoneNA: 'Hospital phone not verified. Use the 104 helpline.',
             reportWait: 'Report current wait', crowdLabel: 'Crowd', cr_low: 'Low', cr_moderate: 'Moderate', cr_high: 'High', cr_veryHigh: 'Very crowded', cr_none: 'No live data yet',
             altTitle: 'Less crowded options nearby', altKm: '{n} km', altGo: 'Go here instead',

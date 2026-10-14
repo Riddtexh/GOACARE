@@ -3,10 +3,11 @@
 //  - Tailwind / Font Awesome CDN files: cached the first time they load (stale-while-revalidate)
 //  - live data (/api/facilities, doctors, impact, crowd): network first, last copy used when offline
 //  - everything else under /api (sign in, personal data): never cached
-const VERSION = 'goacare-v3';
+const VERSION = 'goacare-v6';
 const SHELL = ['/', '/index.html', '/offline.html', '/manifest.webmanifest', '/icons/icon.svg', '/css/base.css', '/css/features.css',
   '/js/tailwind-config.js', '/js/core.js', '/js/i18n.js', '/js/api.js', '/js/a11y.js', '/js/directory.js', '/js/triage.js', '/js/app.js',
-  '/js/appointments.js', '/js/prescriptions.js', '/js/stores-insurance.js', '/js/staff.js', '/js/admin.js', '/js/auth.js'];
+  '/js/appointments.js', '/js/prescriptions.js', '/js/stores-insurance.js', '/js/staff.js', '/js/admin.js', '/js/auth.js', '/css/chatbot.css', '/js/chatbot.js',
+  '/staff.html', '/css/staff.css', '/js/staff-ui.js', '/js/staff-pages.js', '/js/staff-ops.js', '/js/staff-admin.js', '/js/staff-boot.js'];
 const LIVE = ['/api/facilities', '/api/doctors', '/api/impact', '/api/crowd'];
 
 self.addEventListener('install', e => { e.waitUntil(caches.open(VERSION).then(c => c.addAll(SHELL)).then(() => self.skipWaiting())); });
@@ -21,7 +22,7 @@ self.addEventListener('fetch', e => {
       e.respondWith(fetch(req).then(r => { if (r.ok) { const copy = r.clone(); caches.open(VERSION).then(c => c.put(req, copy)); } return r; }).catch(() => caches.match(req)));
       return;
     }
-    if (req.mode === 'navigate') { e.respondWith(fetch(req).catch(() => caches.match('/index.html').then(r => r || caches.match('/offline.html')))); return; }
+    if (req.mode === 'navigate') { const home = url.pathname === '/staff.html' ? '/staff.html' : '/index.html'; e.respondWith(fetch(req).catch(() => caches.match(home).then(r => r || caches.match('/offline.html')))); return; }
     e.respondWith(fetch(req).then(r => { const copy = r.clone(); caches.open(VERSION).then(c => c.put(req, copy)); return r; }).catch(() => caches.match(req)));
     return;
   }

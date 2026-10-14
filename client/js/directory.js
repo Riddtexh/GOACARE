@@ -30,6 +30,13 @@
     }
 
     // ---------- hospital cards ----------
+    // Hospital-staff crowd / wait report from the staff workspace. Shown as a report (with its age), never as live data; hidden when there is none.
+    let ops = {};
+    function staffReport(f) {
+        const c = ops[f.id] && ops[f.id].crowd; if (!c) return '';
+        const parts = [c.level, c.waitMinutes != null ? '~' + c.waitMinutes + ' min' : '', c.queueCount != null ? c.queueCount + ' in queue' : ''].filter(Boolean).join(' · ');
+        return `<p class="mt-1 text-[10px] font-semibold ${c.outdated ? 'text-amber-700' : 'text-slate-600'}" title="${esc(t('staffReportNote'))}"><i class="fa-solid fa-user-nurse mr-1" aria-hidden="true"></i>${esc(t('staffReport'))}: ${esc(parts)} · ${esc(ago(c.verifiedAt))}${c.outdated ? ' (' + esc(t('staffReportOutdated')) + ')' : ''}</p>`;
+    }
     function crowdChip(f) {
         const c = crowdFor('h:' + f.id, 'hospital', f.id, todayISO(), nowHHMM());
         const st = LEVEL_STYLE[c.level];
@@ -66,6 +73,7 @@
                             <div class="bg-white p-1.5 rounded-lg border border-slate-200"><span class="block text-slate-500 text-[10px]">${esc(t('bGeneral'))}</span><span class="font-extrabold ${f.generalBeds > 0 ? 'text-teal-700' : 'text-rose-600'}">${f.generalBeds}</span></div>
                         </div>
                         <p class="mt-2 text-[10px] font-semibold ${verified ? 'text-emerald-700' : 'text-amber-700'}"><i class="fa-solid ${verified ? 'fa-circle-check' : 'fa-triangle-exclamation'} mr-1" aria-hidden="true"></i>${esc(verified ? t('staffVerified') + ' · ' + ago(f.staffUpdatedAt) : t('staffUnverified'))}</p>
+                        ${staffReport(f)}
                     </div>
                     <div class="flex flex-wrap items-center gap-1.5">
                         ${chip.html}
@@ -116,6 +124,7 @@
             let bg = 'bg-emerald-100 text-emerald-800';
             if (d.status === 'In Surgery') bg = 'bg-amber-100 text-amber-800';
             if (d.status === 'On Call') bg = 'bg-blue-100 text-blue-800';
+            if (d.status === 'Off Duty' || d.status === 'On Leave') bg = 'bg-slate-200 text-slate-700';
             const sub = d.status !== 'Available' ? (d.substitute
                 ? `<div class="rounded-xl bg-emerald-50 border border-emerald-200 p-2.5 text-[11px] text-emerald-900"><i class="fa-solid fa-user-check mr-1" aria-hidden="true"></i><strong>Next available:</strong> ${esc(d.substitute.name)} · ${esc(d.substitute.hospital)}${d.substitute.sameHospital ? ' (same hospital)' : ''} · ${esc(d.substitute.room)}
                     <button type="button" onclick="apptQuickBook('d:${d.substitute.id}')" class="ml-1 underline font-bold">Book</button></div>`
@@ -153,8 +162,9 @@
 
     async function load() {
         try {
-            const [f, d, i] = await Promise.all([GoaAPI.facilities(), GoaAPI.doctors(), GoaAPI.impact().catch(() => null), loadCrowd(todayISO())]);
-            const sig = JSON.stringify([f.facilities, d.doctors, i, GC.crowd[todayISO()]]);
+            const [f, d, i, o] = await Promise.all([GoaAPI.facilities(), GoaAPI.doctors(), GoaAPI.impact().catch(() => null), GoaAPI.publicOperations().catch(() => null), loadCrowd(todayISO())]);
+            ops = (o && o.hospitals) || {};
+            const sig = JSON.stringify([f.facilities, d.doctors, i, o && Object.values(o.hospitals).map(h => h.crowd), GC.crowd[todayISO()]]);
             if (sig !== signature) {
                 signature = sig;
                 replaceAll(facilitiesData, f.facilities); replaceAll(doctorsData, d.doctors);

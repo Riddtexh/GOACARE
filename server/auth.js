@@ -47,8 +47,10 @@ function validateRegistration({ name, phone, password, role }) {
 // Doctor / hospital accounts can change live data, so creating one needs the staff access code issued by the programme.
 // Set GOACARE_STAFF_CODE in production. The built-in default is for the demo only and is printed when the server starts.
 const DEMO_STAFF_CODE = 'GOA-STAFF-DEMO';
-const staffCode = () => process.env.GOACARE_STAFF_CODE || DEMO_STAFF_CODE;
+// In production (NODE_ENV=production) the demo code is NOT accepted: if GOACARE_STAFF_CODE is unset, staff sign-up is closed.
+const staffCode = () => process.env.GOACARE_STAFF_CODE || (process.env.NODE_ENV === 'production' ? null : DEMO_STAFF_CODE);
 function staffCodeOk(given) {
+  if (!staffCode()) return false;
   const a = Buffer.from(String(given || '')), b = Buffer.from(staffCode());
   return a.length === b.length && crypto.timingSafeEqual(a, b);
 }

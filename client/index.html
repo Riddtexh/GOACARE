@@ -16,6 +16,7 @@
     <link rel="stylesheet" href="css/base.css">
     <link rel="stylesheet" href="css/features.css">
     <link rel="stylesheet" href="css/design-system.css">
+    <link rel="stylesheet" href="css/chatbot.css">
 </head>
 <body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col">
 <a href="#mainContent" class="skip-link">Skip to content</a>
@@ -33,9 +34,32 @@
       <div><label for="authPhone" class="block font-semibold mb-1">Mobile number / Health ID</label><input id="authPhone" autocomplete="username" inputmode="tel" class="w-full p-2.5 border border-slate-300 rounded-xl"></div>
       <div><label for="authPassword" class="block font-semibold mb-1">Password</label><input id="authPassword" type="password" autocomplete="current-password" class="w-full p-2.5 border border-slate-300 rounded-xl"></div>
       <div id="authRoleWrap" class="hidden"><label for="authRole" class="block font-semibold mb-1">I am a</label>
-        <select id="authRole" onchange="authRoleChange()" class="w-full p-2.5 border border-slate-300 rounded-xl bg-white"><option value="patient">Patient</option><option value="hospital">Hospital staff</option><option value="doctor">Doctor</option></select></div>
+        <select id="authRole" onchange="authRoleChange()" class="w-full p-2.5 border border-slate-300 rounded-xl bg-white"><option value="patient">Patient</option><option value="new_hospital">Register my hospital (new)</option><option value="new_doctor">Register as a doctor (new)</option><option value="hospital">Hospital staff (I have an access code)</option><option value="doctor">Doctor (I have an access code)</option></select></div>
+
+      <div id="authNewHospitalWrap" class="hidden space-y-3 bg-slate-50 border border-slate-200 rounded-xl p-3">
+        <p class="text-[11px] text-slate-600">Your hospital is <strong>not listed or verified</strong> until a GoaCare administrator reviews these details. You will be able to manage it once it is approved.</p>
+        <div><label for="nhName" class="block font-semibold mb-1">Official hospital name</label><input id="nhName" maxlength="120" autocomplete="organization" class="w-full p-2.5 border border-slate-300 rounded-xl"></div>
+        <div class="grid grid-cols-2 gap-2"><div><label for="nhType" class="block font-semibold mb-1">Type</label><select id="nhType" class="w-full p-2.5 border border-slate-300 rounded-xl bg-white"><option>Private hospital</option><option>Government hospital</option><option>Community health centre</option><option>Clinic</option></select></div><div><label for="nhDistrict" class="block font-semibold mb-1">District</label><input id="nhDistrict" maxlength="40" placeholder="North Goa" class="w-full p-2.5 border border-slate-300 rounded-xl"></div></div>
+        <div><label for="nhAddress" class="block font-semibold mb-1">Address</label><input id="nhAddress" maxlength="240" autocomplete="street-address" class="w-full p-2.5 border border-slate-300 rounded-xl"></div>
+        <div class="grid grid-cols-2 gap-2"><div><label for="nhLat" class="block font-semibold mb-1">Latitude</label><input id="nhLat" inputmode="decimal" placeholder="15.49" class="w-full p-2.5 border border-slate-300 rounded-xl"></div><div><label for="nhLng" class="block font-semibold mb-1">Longitude</label><input id="nhLng" inputmode="decimal" placeholder="73.82" class="w-full p-2.5 border border-slate-300 rounded-xl"></div></div>
+        <button type="button" id="nhLocate" class="text-[11px] font-bold text-teal-700 underline">Use my current location</button>
+        <div class="grid grid-cols-2 gap-2"><div><label for="nhPhone" class="block font-semibold mb-1">Hospital phone</label><input id="nhPhone" inputmode="tel" maxlength="30" class="w-full p-2.5 border border-slate-300 rounded-xl"></div><div><label for="nhEmergency" class="block font-semibold mb-1">Emergency number (optional)</label><input id="nhEmergency" inputmode="tel" maxlength="30" class="w-full p-2.5 border border-slate-300 rounded-xl"></div></div>
+        <div class="grid grid-cols-2 gap-2"><div><label for="nhLicense" class="block font-semibold mb-1">Registration / licence no.</label><input id="nhLicense" maxlength="60" class="w-full p-2.5 border border-slate-300 rounded-xl"></div><div><label for="nhAuthority" class="block font-semibold mb-1">Issued by</label><input id="nhAuthority" maxlength="100" placeholder="e.g. Goa Directorate of Health Services" class="w-full p-2.5 border border-slate-300 rounded-xl"></div></div>
+        <div><label for="nhDepartments" class="block font-semibold mb-1">Departments (comma separated, optional)</label><input id="nhDepartments" maxlength="400" class="w-full p-2.5 border border-slate-300 rounded-xl"></div>
+        <div><label for="nhDoc" class="block font-semibold mb-1">Licence document (PDF, PNG or JPEG, max 2 MB)</label><input id="nhDoc" type="file" accept="application/pdf,image/png,image/jpeg" class="w-full text-[11px]"><p class="text-[10px] text-slate-500 mt-1">Optional now; you can add it later while the request is pending. Only GoaCare administrators can open it.</p></div>
+        <p class="text-[10px] text-slate-500">You are the authorised representative. Your name and mobile number above are used as the contact.</p>
+      </div>
+      <div id="authNewDoctorWrap" class="hidden space-y-3 bg-slate-50 border border-slate-200 rounded-xl p-3">
+        <p class="text-[11px] text-slate-600">You become a <strong>verified doctor</strong> only after your hospital confirms you work there and GoaCare checks your medical registration.</p>
+        <div><label for="ndQual" class="block font-semibold mb-1">Qualifications</label><input id="ndQual" maxlength="200" placeholder="e.g. MBBS, MD (Medicine)" class="w-full p-2.5 border border-slate-300 rounded-xl"></div>
+        <div class="grid grid-cols-2 gap-2"><div><label for="ndReg" class="block font-semibold mb-1">Medical registration no.</label><input id="ndReg" maxlength="40" class="w-full p-2.5 border border-slate-300 rounded-xl"></div><div><label for="ndAuthority" class="block font-semibold mb-1">Issued by</label><input id="ndAuthority" maxlength="100" placeholder="e.g. Goa Medical Council" class="w-full p-2.5 border border-slate-300 rounded-xl"></div></div>
+        <div class="grid grid-cols-2 gap-2"><div><label for="ndSpecialty" class="block font-semibold mb-1">Specialty</label><input id="ndSpecialty" maxlength="60" class="w-full p-2.5 border border-slate-300 rounded-xl"></div><div><label for="ndDepartment" class="block font-semibold mb-1">Department (optional)</label><input id="ndDepartment" maxlength="60" class="w-full p-2.5 border border-slate-300 rounded-xl"></div></div>
+        <div><label for="ndFacility" class="block font-semibold mb-1">Hospital you work at</label><select id="ndFacility" class="w-full p-2.5 border border-slate-300 rounded-xl bg-white"></select><p class="text-[10px] text-slate-500 mt-1">Only hospitals already verified by GoaCare are listed. If yours is not, ask your hospital to register first, or choose later.</p></div>
+        <div><label for="ndDoc" class="block font-semibold mb-1">Registration certificate (PDF, PNG or JPEG, max 2 MB)</label><input id="ndDoc" type="file" accept="application/pdf,image/png,image/jpeg" class="w-full text-[11px]"></div>
+      </div>
       <div id="authStaffWrap" class="hidden space-y-3 bg-slate-50 border border-slate-200 rounded-xl p-3">
         <div id="authFacilityWrap"><label for="authFacility" class="block font-semibold mb-1">Hospital you manage</label><select id="authFacility" class="w-full p-2.5 border border-slate-300 rounded-xl bg-white"></select></div>
+        <div id="authStaffRoleWrap"><label for="authStaffRole" class="block font-semibold mb-1">Your role at the hospital</label><select id="authStaffRole" class="w-full p-2.5 border border-slate-300 rounded-xl bg-white"><option value="manager">Administrator (full access)</option><option value="nurse">Nurse (beds, crowd)</option><option value="reception">Reception (appointments, duty, crowd)</option></select></div>
         <div id="authDoctorWrap" class="hidden"><label for="authDoctor" class="block font-semibold mb-1">Which doctor are you?</label><select id="authDoctor" class="w-full p-2.5 border border-slate-300 rounded-xl bg-white"></select></div>
         <div><label for="authStaffCode" class="block font-semibold mb-1">Staff access code</label><input id="authStaffCode" autocomplete="off" class="w-full p-2.5 border border-slate-300 rounded-xl"><p class="text-[10px] text-slate-500 mt-1">Issued by your hospital administrator. Demo code is printed in the server console.</p></div>
       </div>
@@ -371,6 +395,7 @@
  <script src="js/admin.js"></script>
 <script src="js/dashboard.js"></script>
 <script src="js/auth.js"></script>
+<script src="js/chatbot.js"></script>
 <script>if ('serviceWorker' in navigator) window.addEventListener('load', () => navigator.serviceWorker.register('/sw.js').catch(() => {}));</script>
 </body>
 </html>

@@ -5,7 +5,7 @@
   "description": "GoaCare - Integrated Healthcare & Emergency Portal (client + Node.js back end)",
   "scripts": {
     "start": "node --disable-warning=ExperimentalWarning server/server.js",
-    "test": "node --disable-warning=ExperimentalWarning --test server/test/auth.test.js server/test/api.test.js",
+    "test": "node --disable-warning=ExperimentalWarning --test server/test/auth.test.js server/test/api.test.js server/test/staff.test.js server/test/ops.test.js server/test/governance.test.js server/test/audit.test.js server/test/chat.test.js",
     "users": "node --disable-warning=ExperimentalWarning server/list-users.js",
     "make-admin": "node --disable-warning=ExperimentalWarning server/make-admin.js",
     "facilities": "node --disable-warning=ExperimentalWarning server/admin.js facilities",
@@ -14,7 +14,8 @@
     "doctor-status": "node --disable-warning=ExperimentalWarning server/admin.js doctor-status",
     "doctor-room": "node --disable-warning=ExperimentalWarning server/admin.js doctor-room",
     "demo-load": "node --disable-warning=ExperimentalWarning server/admin.js demo-load",
-    "demo-clear": "node --disable-warning=ExperimentalWarning server/admin.js demo-clear"
+    "demo-clear": "node --disable-warning=ExperimentalWarning server/admin.js demo-clear",
+    "demo-ops": "node --disable-warning=ExperimentalWarning server/demo-ops.js"
   },
   "engines": {
     "node": ">=22.5.0"
